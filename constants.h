@@ -14,8 +14,8 @@ const uint8_t ORIENTATION_CHANGES[4][4] =
 {
   { DOWN,    UP, RIGHT,  LEFT}, // RIGHT
   {   UP,  DOWN,  LEFT, RIGHT}, // LEFT
-  {RIGHT,  LEFT,    UP,  DOWN}, // UP
-  { LEFT, RIGHT,  DOWN,    UP}  // DOWN
+  {RIGHT,  LEFT,    UP,  DOWN}, // FORWARD
+  { LEFT, RIGHT,  DOWN,    UP}  // BACKWARDS
 //  RIGHT   LEFT   DOWN    UP
 };
 
@@ -23,8 +23,8 @@ const uint8_t MOVEMENT_CHANGES[4][4][2] =
 {
   {{+1, 0}, {-1, 0}, {0, +1}, {0, -1}}, // RIGHT
   {{-1, 0}, {+1, 0}, {0, -1}, {0, +1}}, // LEFT
-  {{0, +1}, {0, -1}, {-1, 0}, {+1, 0}}, // UP
-  {{0, -1}, {0, +1}, {+1, 0}, {-1, 0}}  // DOWN
+  {{0, +1}, {0, -1}, {-1, 0}, {+1, 0}}, // FORWARD
+  {{0, -1}, {0, +1}, {+1, 0}, {-1, 0}}  // BACKWARDS
 //   RIGHT     LEFT     DOWN       UP
 };
 
