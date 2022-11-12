@@ -4,11 +4,16 @@ Robot::Robot()
 {
   x = y = 0;
   orientation = DOWN;
+
+  // TODO - Change Pin values
+  IRSensorLeft = -1;
+  IRSensorRight = -1;
 }
 
 void Robot::initializeSensors()
 {
-  // TODO
+  pinMode(IRSensorLeft, INPUT);
+  pinMode(IRSensorRight, INPUT);
 }
 
 void Robot::initializeMotors()
@@ -24,6 +29,32 @@ void Robot::initializeEncoders()
 bool Robot::checkForWallUsingSensors(uint8_t direction)
 {
   // TODO
+  if (direction == RIGHT)
+  {
+    uint8_t rightSensorInfo = digitalRead(IRSensorRight);
+    
+    if (rightSensorInfo == 1)
+    {
+      return true;
+    }
+  }
+  else if (direction == LEFT)
+  {
+    uint8_t leftSensorInfo = digitalRead(IRSensorLeft);
+    
+    if (leftSensorInfo == 1)
+    {
+      return true;
+    }
+  }
+  else if (direction == FORWARD)
+  {
+    // TODO: change 
+    if (sonar.ping_cm() < 20)
+    {
+      return true;
+    }
+  }
 }
 
 uint8_t Robot::decideCrossroad(uint8_t flagsMask, bool isCrossroadAlreadyVisited)

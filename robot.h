@@ -1,6 +1,8 @@
 #ifndef ROBOT_H
 #define ROBOT_H
 
+#include <NewPing.h>
+
 #include "maze.h"
 
 class Robot
@@ -10,8 +12,13 @@ class Robot
     uint8_t orientation;
     Maze maze;
 
-    // TODO: sensors, motors and encoders info
-  
+    uint8_t IRSensorLeft;
+    uint8_t IRSensorRight;
+
+    // TODO: put pins for ultrasonic sensor
+    NewPing sonar = NewPing(1, 1, 20);
+
+    // TODO: motors and encoders info
   public:
     Robot();
 
