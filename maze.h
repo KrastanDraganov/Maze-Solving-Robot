@@ -7,7 +7,7 @@ class Maze
 {
   private:
     uint8_t cellWalls[MAZE_SIZE][MAZE_SIZE];
-    uint8_t cellCorridorsMarkers[MAZE_SIZE][MAZE_SIZE];
+    uint8_t cellCorridorsMarkers[MAZE_SIZE][MAZE_SIZE][4];
 
   public:
     Maze();

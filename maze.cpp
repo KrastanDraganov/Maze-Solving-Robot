@@ -7,7 +7,10 @@ Maze::Maze()
     for (uint8_t y = 0; y < MAZE_SIZE; ++y)
     {
       cellWalls[x][y] = 0;
-      cellCorridorsMarkers[x][y] = 0;
+      for (uint8_t i = 0; i < 4; ++i)
+      {
+        cellCorridorsMarkers[x][y][i] = 0;
+      }
     }
   }
 }
@@ -42,16 +45,8 @@ void Maze::setWall(uint8_t x, uint8_t y, uint8_t orientation, uint8_t direction)
 int Maze::getCorridorMarkersCount(uint8_t x, uint8_t y, uint8_t orientation, uint8_t direction)
 {
   uint8_t realOrientation = ORIENTATION_CHANGES[orientation][direction];
-
-  for (int markers = 0; markers <= MARKERS_LIMIT; ++markers)
-  {
-    if (((cellCorridorsMarkers[x][y] >> (2 * direction)) & markers) == markers)
-    {
-      return markers;
-    }
-  }
-
-  return -1;
+  
+  return cellCorridorsMarkers[x][y][realOrientation];
 }
 
 void Maze::updateCorridorMarkersCount(uint8_t x, uint8_t y, uint8_t orientation, uint8_t direction, uint8_t newMarkersCount)
@@ -62,7 +57,7 @@ void Maze::updateCorridorMarkersCount(uint8_t x, uint8_t y, uint8_t orientation,
   }
 
   uint8_t realOrientation = ORIENTATION_CHANGES[orientation][direction];
-  cellCorridorsMarkers[x][y] |= (newMarkersCount << (2 * realOrientation));
+  cellCorridorsMarkers[x][y][realOrientation] = newMarkersCount;
 
   // change the cell that is on the other side of the wall
   uint8_t nextX = x + MOVEMENT_CHANGES[orientation][direction][X];
@@ -70,7 +65,8 @@ void Maze::updateCorridorMarkersCount(uint8_t x, uint8_t y, uint8_t orientation,
 
   if (inBoundaries(nextX, nextY))
   {
-    cellCorridorsMarkers[nextX][nextY] |= (newMarkersCount << (2 * OPPOSITE_ORIENTATIONS[realOrientation]));
+    uint8_t oppositeOrientation = OPPOSITE_ORIENTATIONS[realOrientation];
+    cellCorridorsMarkers[nextX][nextY][oppositeOrientation] = newMarkersCount;
   }
 }
 
