@@ -28,8 +28,8 @@ class Robot
 
     bool checkForWallUsingSensors(uint8_t direction);
 
-    uint8_t decideCrossroad(uint8_t flagsMask, bool isCrossroadAlreadyVisited);
-    uint8_t getCorridorDirection(uint8_t flagsMask);
+    uint8_t decideCrossroad(uint8_t wallsMask, bool isCrossroadAlreadyVisited);
+    uint8_t getCorridorDirection(uint8_t wallsMask);
 
     void physicallyMoveRobot(uint8_t direction);
     void solveMaze();

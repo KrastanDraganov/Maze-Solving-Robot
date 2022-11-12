@@ -57,7 +57,7 @@ bool Robot::checkForWallUsingSensors(uint8_t direction)
   }
 }
 
-uint8_t Robot::decideCrossroad(uint8_t flagsMask, bool isCrossroadAlreadyVisited)
+uint8_t Robot::decideCrossroad(uint8_t wallsMask, bool isCrossroadAlreadyVisited)
 {
   uint8_t markersBackwards = maze.getCorridorMarkersCount(x, y, orientation, BACKWARDS) + 1;
   maze.updateCorridorMarkersCount(x, y, orientation, BACKWARDS, markersBackwards);
@@ -84,7 +84,7 @@ uint8_t Robot::decideCrossroad(uint8_t flagsMask, bool isCrossroadAlreadyVisited
       continue;
     }
 
-    bool isWallFlagSet = (((flagsMask >> (2 * direction)) & WALL_FLAG) == WALL_FLAG);
+    bool isWallFlagSet = (wallsMask & (1 << direction));
     if (isWallFlagSet)
     {
       continue;
@@ -114,12 +114,12 @@ uint8_t Robot::decideCrossroad(uint8_t flagsMask, bool isCrossroadAlreadyVisited
   return decisionDirection;
 }
 
-uint8_t Robot::getCorridorDirection(uint8_t flagsMask)
+uint8_t Robot::getCorridorDirection(uint8_t wallsMask)
 {
 
   for (uint8_t direction = 0; direction < 4; ++direction)
   {
-    bool isWallFlagSet = (((flagsMask >> (2 * direction)) & WALL_FLAG) == WALL_FLAG);
+    bool isWallFlagSet = (wallsMask & (1 << direction));
     if (direction != BACKWARDS and !isWallFlagSet)
     {
       return direction;
@@ -136,7 +136,7 @@ void Robot::physicallyMoveRobot(uint8_t direction)
 
 void Robot::solveMaze()
 {
-  uint8_t flagsMask = 0;
+  uint8_t wallsMask = 0;
   uint8_t corridorsCounter = 0;
   bool isMarkerPlacedSomewhere = false;
   
@@ -144,11 +144,11 @@ void Robot::solveMaze()
   {
     if (maze.isWall(x, y, orientation, direction))
     {
-      flagsMask |= (WALL_FLAG << (2 * direction));
+      wallsMask |= (1 << direction);
     }
     else if(checkForWallUsingSensors(direction))
     {
-      flagsMask |= (WALL_FLAG << (2 * direction));
+      wallsMask |= (1 << direction);
       maze.setWall(x, y, orientation, direction);
     }
     else
@@ -156,8 +156,6 @@ void Robot::solveMaze()
       ++corridorsCounter;
 
       int corridorMarkersCount = maze.getCorridorMarkersCount(x, y, orientation, direction);
-      flagsMask |= (corridorMarkersCount << (2 * direction));
-
       if (corridorMarkersCount > 0)
       {
         isMarkerPlacedSomewhere = true;
@@ -170,11 +168,11 @@ void Robot::solveMaze()
 
   if (isCrossroad)
   {
-    directionDecision = decideCrossroad(flagsMask, isMarkerPlacedSomewhere);
+    directionDecision = decideCrossroad(wallsMask, isMarkerPlacedSomewhere);
   }
   else
   {
-    directionDecision = getCorridorDirection(flagsMask);
+    directionDecision = getCorridorDirection(wallsMask);
   }
 
   physicallyMoveRobot(directionDecision);
