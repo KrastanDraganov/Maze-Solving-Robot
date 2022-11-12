@@ -9,11 +9,6 @@ const uint8_t MAZE_FINAL_HIGH_BOUNDARY = 8;
 
 const uint8_t MARKERS_LIMIT = 2;
 
-const uint8_t EMPTY_CORRIDOR = 0;
-const uint8_t MARKED_ONCE_CORRIDOR = 1;
-const uint8_t MARKED_TWICE_CORRIDOR = 2;
-const uint8_t WALL_FLAG = 3;
-
 const uint8_t RIGHT = 0;
 const uint8_t LEFT = 1;
 
