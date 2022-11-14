@@ -102,7 +102,7 @@ uint8_t Robot::decideCrossroad(uint8_t wallsMask, bool isCrossroadAlreadyVisited
       smallestDistanceToFinal = currentDistanceToFinal;
       decisionDirection = direction;
     }
-    else if (currentMarkersCount == smallestMarkersCount and currentDistanceToFinal < smallestDistanceToFinal)
+    else if (currentMarkersCount == smallestMarkersCount and currentDistanceToFinal <= smallestDistanceToFinal)
     {
       smallestDistanceToFinal = currentDistanceToFinal;
       decisionDirection = direction;
