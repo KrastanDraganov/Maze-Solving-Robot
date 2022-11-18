@@ -4,6 +4,7 @@
 #include <NewPing.h>
 
 #include "maze.h"
+#include "motor.h"
 
 class Robot
 {
@@ -19,6 +20,8 @@ class Robot
     NewPing sonar = NewPing(1, 1, 20);
 
     // TODO: motors and encoders info
+    Motor leftMotor = Motor(-1, -1, -1);
+    Motor rightMotor = Motor(-1, -1, -1);
   public:
     Robot();
 

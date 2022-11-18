@@ -24,6 +24,7 @@ void Robot::initializeMotors()
 void Robot::initializeEncoders()
 {
   // TODO
+  
 }
 
 bool Robot::checkForWallUsingSensors(uint8_t direction)
