@@ -5,15 +5,19 @@ Robot::Robot()
   x = y = 0;
   orientation = DOWN;
 
-  // TODO - Change Pin values
-  IRSensorLeft = -1;
-  IRSensorRight = -1;
+  leftSensor = UltrasonicSensor(A5, A4);
+  rightSensor = UltrasonicSensor(A3, A2);
+  frontSensor = UltrasonicSensor(A1, A0);
+
+  leftMotor = Motor(13, 12, 6, 2, LEFT);
+  rightMotor = Motor(7, 8, 5, 3, RIGHT);
 }
 
 void Robot::initializeSensors()
 {
-  pinMode(IRSensorLeft, INPUT);
-  pinMode(IRSensorRight, INPUT);
+  leftSensor.setupSensor();
+  rightSensor.setupSensor();
+  frontSensor.setupSensor();
 }
 
 void Robot::initializeMotors()
@@ -23,40 +27,19 @@ void Robot::initializeMotors()
   noInterrupts();
 }
 
-void Robot::initializeEncoders()
-{
-  // TODO
-  
-}
-
 bool Robot::checkForWallUsingSensors(uint8_t direction)
 {
-  // TODO
   if (direction == RIGHT)
   {
-    uint8_t rightSensorInfo = digitalRead(IRSensorRight);
     
-    if (rightSensorInfo == 1)
-    {
-      return true;
-    }
   }
   else if (direction == LEFT)
   {
-    uint8_t leftSensorInfo = digitalRead(IRSensorLeft);
     
-    if (leftSensorInfo == 1)
-    {
-      return true;
-    }
   }
   else if (direction == FORWARD)
   {
-    // TODO: change 
-    if (sonar.ping_cm() < 20)
-    {
-      return true;
-    }
+
   }
 }
 

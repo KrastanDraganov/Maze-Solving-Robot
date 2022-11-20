@@ -1,32 +1,29 @@
 #ifndef ROBOT_H
 #define ROBOT_H
 
-#include <NewPing.h>
-
 #include "maze.h"
 #include "motor.h"
+#include "ultrasonic_sensor.h"
 
 class Robot
 {
   private:
     uint8_t x, y;
     uint8_t orientation;
+
     Maze maze;
 
-    uint8_t IRSensorLeft;
-    uint8_t IRSensorRight;
+    UltrasonicSensor leftSensor;
+    UltrasonicSensor rightSensor;
+    UltrasonicSensor frontSensor;
 
-    // TODO: put pins for ultrasonic sensor
-    NewPing sonar = NewPing(1, 1, 20);
-
-    Motor leftMotor = Motor(13, 12, 6, 2, LEFT);
-    Motor rightMotor = Motor(7, 8, 5, 3, RIGHT);
+    Motor leftMotor;
+    Motor rightMotor;
   public:
     Robot();
 
     void initializeSensors();
     void initializeMotors();
-    void initializeEncoders();
 
     bool checkForWallUsingSensors(uint8_t direction);
 
