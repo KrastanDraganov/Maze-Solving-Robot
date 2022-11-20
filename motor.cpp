@@ -1,5 +1,11 @@
 #include "motor.h"
 
+Motor::Motor()
+{
+  inputPin1 = inputPin2 = pwmPin = encoderPin = ticksIndex = -1;
+  previousEncoderTicks = 0;
+}
+
 Motor::Motor(uint8_t _inputPin1, uint8_t _inputPin2, uint8_t _pwmPin, uint8_t _encoderPin, uint8_t _ticksIndex)
 {
   inputPin1 = _inputPin1;

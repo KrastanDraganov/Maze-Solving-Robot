@@ -16,6 +16,7 @@ class Motor
     uint8_t previousEncoderTicks;
 
   public:
+    Motor();
     Motor(uint8_t _inputPin1, uint8_t _inputPin2, uint8_t _pwmPin, uint8_t _encoderPin, uint8_t _ticksIndex);
 
     void setupMotor();
