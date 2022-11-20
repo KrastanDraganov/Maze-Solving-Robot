@@ -30,7 +30,13 @@ class Robot
     uint8_t decideCrossroad(uint8_t wallsMask, bool isCrossroadAlreadyVisited);
     uint8_t getCorridorDirection(uint8_t wallsMask);
 
+    void moveForward();
+    void moveBackwards();
+    void moveLeft();
+    void moveRight();
+    
     void physicallyMoveRobot(uint8_t direction);
+    
     void solveMaze();
 
     bool didFinish();
