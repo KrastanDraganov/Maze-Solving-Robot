@@ -6,7 +6,6 @@ void setup()
 {
   robot.initializeSensors();
   robot.initializeMotors();
-  robot.initializeEncoders();
 }
 
 void loop() 
