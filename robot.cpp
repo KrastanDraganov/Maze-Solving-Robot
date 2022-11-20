@@ -31,16 +31,20 @@ bool Robot::checkForWallUsingSensors(uint8_t direction)
 {
   if (direction == RIGHT)
   {
-    
+    return rightSensor.measureDistance() < CLOSE_TO_WALL_DISTANCE_CM;
   }
-  else if (direction == LEFT)
+  
+  if (direction == LEFT)
   {
-    
+    return leftSensor.measureDistance() < CLOSE_TO_WALL_DISTANCE_CM;
   }
-  else if (direction == FORWARD)
+  
+  if (direction == FORWARD)
   {
+    return frontSensor.measureDistance() < CLOSE_TO_WALL_DISTANCE_CM;
+  }
 
-  }
+  return false;
 }
 
 uint8_t Robot::decideCrossroad(uint8_t wallsMask, bool isCrossroadAlreadyVisited)

@@ -7,6 +7,8 @@ const uint8_t MAZE_SIZE = 16;
 const uint8_t MAZE_FINAL_LOW_BOUNDARY = 7;
 const uint8_t MAZE_FINAL_HIGH_BOUNDARY = 8;
 
+const double CLOSE_TO_WALL_DISTANCE_CM = 4.0;
+
 const uint8_t MARKERS_LIMIT = 2;
 
 const uint8_t RIGHT = 0;
