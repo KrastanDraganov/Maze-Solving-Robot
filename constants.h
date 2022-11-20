@@ -41,7 +41,7 @@ const uint8_t MOVEMENT_CHANGES[4][4][2] =
   {{0, -1}, {0, +1}, {+1, 0}, {-1, 0}}  // DOWN
 };
 
-static uint32_t ticks[2];
+static volatile uint32_t ticks[2];
 
 static void readRightEncoder()
 {

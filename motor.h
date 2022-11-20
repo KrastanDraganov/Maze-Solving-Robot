@@ -13,7 +13,7 @@ class Motor
     uint8_t encoderPin;
 
     uint8_t ticksIndex;
-    uint8_t previousEncoderTicks;
+    volatile uint32_t previousEncoderTicks;
 
   public:
     Motor();
@@ -24,7 +24,7 @@ class Motor
     void setMotor(uint8_t direction, uint8_t speed);
     void stopMotor();
 
-    uint32_t getRPM();
+    volatile uint32_t getRPM();
 };
 
 #endif

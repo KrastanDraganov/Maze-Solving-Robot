@@ -68,7 +68,7 @@ void Motor::stopMotor()
   previousEncoderTicks = 0;
 }
 
-uint32_t Motor::getRPM()
+volatile uint32_t Motor::getRPM()
 {
   uint32_t currentEncoderTicks = ticks[ticksIndex];
 
