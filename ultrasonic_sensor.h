@@ -10,6 +10,7 @@ class UltrasonicSensor
     uint8_t echoPin;
 
   public:
+    UltrasonicSensor();
     UltrasonicSensor(uint8_t _triggerPin, uint8_t _echoPin);
 
     void setupSensor();
