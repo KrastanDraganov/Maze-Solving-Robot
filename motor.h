@@ -2,6 +2,7 @@
 #define MOTOR_H
 
 #include "Arduino.h"
+#include "constants.h"
 
 class Motor
 {
@@ -9,17 +10,20 @@ class Motor
     uint8_t inputPin1, inputPin2;
     uint8_t pwmPin;
 
-    uint8_t encoderPIn;
+    uint8_t encoderPin;
+
+    uint8_t ticksIndex;
+    uint8_t previousEncoderTicks;
 
   public:
-    Motor(uint8_t _inputPin1, uint8_t inputPin2, uint8_t _pwmPin, uint8_t _encoderPin);
+    Motor(uint8_t _inputPin1, uint8_t _inputPin2, uint8_t _pwmPin, uint8_t _encoderPin, uint8_t _ticksIndex);
 
     void setupMotor();
 
     void setMotor(uint8_t direction, uint8_t speed);
     void stopMotor();
 
-    void readEncoder();
+    uint8_t getRPM();
 };
 
 #endif

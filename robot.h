@@ -19,9 +19,8 @@ class Robot
     // TODO: put pins for ultrasonic sensor
     NewPing sonar = NewPing(1, 1, 20);
 
-    // TODO: motors and encoders info
-    Motor leftMotor = Motor(-1, -1, -1);
-    Motor rightMotor = Motor(-1, -1, -1);
+    Motor leftMotor = Motor(13, 12, 6, 2, LEFT);
+    Motor rightMotor = Motor(7, 8, 5, 3, RIGHT);
   public:
     Robot();
 

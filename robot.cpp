@@ -18,7 +18,9 @@ void Robot::initializeSensors()
 
 void Robot::initializeMotors()
 {
-  // TODO
+  leftMotor.setupMotor();
+  rightMotor.setupMotor();
+  noInterrupts();
 }
 
 void Robot::initializeEncoders()

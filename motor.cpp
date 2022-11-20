@@ -1,26 +1,37 @@
 #include "motor.h"
 
-void Motor::Motor(uint8_t _inputPin1, uint8_t inputPin2, uint8_t _pwmPin, uint8_t _encoderPin)
+Motor::Motor(uint8_t _inputPin1, uint8_t _inputPin2, uint8_t _pwmPin, uint8_t _encoderPin, uint8_t _ticksIndex)
 {
   inputPin1 = _inputPin1;
   inputPin2 = _inputPin2;
   pwmPin = _pwmPin;
   encoderPin = _encoderPin;
+  ticksIndex = _ticksIndex;
 }
 
 void Motor::setupMotor()
 {
   pinMode(inputPin1, OUTPUT);
-  pinMode(inputPIn2, OUTPUT);
+  pinMode(inputPin2, OUTPUT);
 
   pinMode(pwmPin, OUTPUT);
 
   pinMode(encoderPin, INPUT);
-  attachInterrupt(digitalPinToInterrupt(encoderPin), readEncoder, CHANGE);
-  noInterrupts();
+  
+  if (ticksIndex == LEFT)
+  { 
+    attachInterrupt(digitalPinToInterrupt(encoderPin), readLeftEncoder, CHANGE);
+  }
+  else
+  {
+    attachInterrupt(digitalPinToInterrupt(encoderPin), readRightEncoder, CHANGE);
+  }
+
+  ticks[ticksIndex] = 0;
+  previousEncoderTicks = 0;
 }
 
-void Motor::setMotor(int direction, int speed)
+void Motor::setMotor(uint8_t direction, uint8_t speed)
 {
   interrupts();
 
@@ -46,9 +57,17 @@ void Motor::stopMotor()
 
   digitalWrite(inputPin1, LOW);
   digitalWrite(inputPin2, LOW);
+
+  ticks[ticksIndex] = 0;
+  previousEncoderTicks = 0;
 }
 
-void Motor::readEncoder()
+uint8_t Motor::getRPM()
 {
-  // TO DO
+  uint8_t currentEncoderTicks = ticks[ticksIndex];
+
+  uint8_t rpm = currentEncoderTicks - previousEncoderTicks;
+  previousEncoderTicks = currentEncoderTicks;
+  
+  return rpm;
 }
