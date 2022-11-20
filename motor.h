@@ -23,7 +23,7 @@ class Motor
     void setMotor(uint8_t direction, uint8_t speed);
     void stopMotor();
 
-    uint8_t getRPM();
+    uint32_t getRPM();
 };
 
 #endif

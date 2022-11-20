@@ -62,11 +62,11 @@ void Motor::stopMotor()
   previousEncoderTicks = 0;
 }
 
-uint8_t Motor::getRPM()
+uint32_t Motor::getRPM()
 {
-  uint8_t currentEncoderTicks = ticks[ticksIndex];
+  uint32_t currentEncoderTicks = ticks[ticksIndex];
 
-  uint8_t rpm = currentEncoderTicks - previousEncoderTicks;
+  uint32_t rpm = currentEncoderTicks - previousEncoderTicks;
   previousEncoderTicks = currentEncoderTicks;
   
   return rpm;
