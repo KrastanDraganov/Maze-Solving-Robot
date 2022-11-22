@@ -41,6 +41,22 @@ const uint8_t MOVEMENT_CHANGES[4][4][2] =
   {{0, -1}, {0, +1}, {+1, 0}, {-1, 0}}  // DOWN
 };
 
+const uint8_t BACKWARDS_ORIENTATION_CHANGES[4][4] =
+{
+  {   UP,  DOWN,   LEFT, RIGHT}, // RIGHT
+  { DOWN,    UP,  RIGHT,  LEFT}, // LEFT
+  { LEFT, RIGHT,   DOWN,    UP}, // UP
+  {RIGHT,  LEFT,     UP,  DOWN}  // DOWN
+};
+
+const uint8_t BACKWARDS_MOVEMENT_CHANGES[4][2] =
+{
+  {0, -1}, // RIGHT
+  {0, +1}, // LEFT
+  {+1, 0}, // UP
+  {-1, 0}  // DOWN
+};
+
 static volatile uint32_t ticks[2];
 
 static void readRightEncoder()
