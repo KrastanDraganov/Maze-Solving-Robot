@@ -119,7 +119,7 @@ uint8_t Robot::getCorridorDirection(uint8_t wallsMask)
   return BACKWARDS;
 }
 
-void Robot::maneuverOverCrossroad(bool isMovingBackwards)
+void Robot::maneuverOverCrossroad(bool isMovingBackwards, uint8_t wallsMask)
 {
 
 }
@@ -129,11 +129,28 @@ void Robot::physicallyMoveRobot(uint8_t direction, uint8_t wallsMask, bool isCro
   if (isCrossroad)
   {
     movementTraceBack.clear();
-    
-    
+    movementTraceBack.push(wallsMask);
   }
 
   movementTraceBack.push(direction);
+
+  if (isCrossroad and direction == BACKWARDS)
+  {
+    maneuverOverCrossroad(false, wallsMask);
+  }
+  else if (direction == FORWARD)
+  {
+    goForward();
+  }
+  else if (direction == LEFT)
+  {
+    turnLeftForward();
+  }
+  else if (direction == RIGHT)
+  {
+    turnRightForward();
+  }
+
 }
 
 void Robot::returnFromDeadEnd()
@@ -155,16 +172,14 @@ void Robot::returnFromDeadEnd()
     {
       goBackwards();        
     }
-    
-    uint8_t realDirection = OPPOSITE_ORIENTATIONS[currentDirection];
 
-    x = x + MOVEMENT_CHANGES[orientation][realDirection][X];
-    y = y + MOVEMENT_CHANGES[orientation][realDirection][Y];
+    x = x + BACKWARDS_MOVEMENT_CHANGES[orientation][X];
+    y = y + BACKWARDS_MOVEMENT_CHANGES[orientation][Y];
 
-    orientation = ORIENTATION_CHANGES[orientation][realDirection];
+    orientation = BACKWARDS_ORIENTATION_CHANGES[orientation][currentDirection];
   }
 
-  maneuverOverCrossroad(true);
+  maneuverOverCrossroad(true, 0);
 }
 
 void Robot::solveMaze()
