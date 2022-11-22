@@ -119,9 +119,52 @@ uint8_t Robot::getCorridorDirection(uint8_t wallsMask)
   return BACKWARDS;
 }
 
-void Robot::physicallyMoveRobot(uint8_t direction)
+void Robot::maneuverOverCrossroad(bool isMovingBackwards)
 {
-  // TODO
+
+}
+
+void Robot::physicallyMoveRobot(uint8_t direction, uint8_t wallsMask, bool isCrossroad)
+{
+  if (isCrossroad)
+  {
+    movementTraceBack.clear();
+    
+    
+  }
+
+  movementTraceBack.push(direction);
+}
+
+void Robot::returnFromDeadEnd()
+{
+  while (!movementTraceBack.empty())
+  {
+    uint8_t currentDirection = movementTraceBack.top();
+    movementTraceBack.pop();
+
+    if (currentDirection == LEFT)
+    {
+      turnLeftBackwards();
+    }
+    else if (currentDirection == RIGHT)
+    {
+      turnRightBackwards();
+    }
+    else if (currentDirection == FORWARD)
+    {
+      goBackwards();        
+    }
+    
+    uint8_t realDirection = OPPOSITE_ORIENTATIONS[currentDirection];
+
+    x = x + MOVEMENT_CHANGES[orientation][realDirection][X];
+    y = y + MOVEMENT_CHANGES[orientation][realDirection][Y];
+
+    orientation = ORIENTATION_CHANGES[orientation][realDirection];
+  }
+
+  maneuverOverCrossroad(true);
 }
 
 void Robot::solveMaze()
@@ -165,18 +208,56 @@ void Robot::solveMaze()
     directionDecision = getCorridorDirection(wallsMask);
   }
 
-  physicallyMoveRobot(directionDecision);
-  
-  x = x + MOVEMENT_CHANGES[orientation][directionDecision][X];
-  y = y + MOVEMENT_CHANGES[orientation][directionDecision][Y];
+  bool isDeadEnd = (directionDecision == BACKWARDS and !isCrossroad);
+  if (isDeadEnd)
+  {
+    returnFromDeadEnd();
+  }
+  else
+  {
+    physicallyMoveRobot(directionDecision, wallsMask, isCrossroad);
+    
+    x = x + MOVEMENT_CHANGES[orientation][directionDecision][X];
+    y = y + MOVEMENT_CHANGES[orientation][directionDecision][Y];
 
-  orientation = ORIENTATION_CHANGES[orientation][directionDecision];
+    orientation = ORIENTATION_CHANGES[orientation][directionDecision];
+  }
 }
 
 bool Robot::didFinish()
 {
   uint8_t distanceToFinal = maze.getDistanceToFinal(x) + maze.getDistanceToFinal(y);
   return (distanceToFinal == 0);
+}
+
+void Robot::goForward()
+{
+
+}
+
+void Robot::goBackwards()
+{
+
+}
+
+void Robot::turnLeftBackwards()
+{
+
+}
+
+void Robot::turnLeftForward()
+{
+
+}
+
+void Robot::turnRightBackwards()
+{
+
+}
+
+void Robot::turnRightForward()
+{
+
 }
 
 void Robot::celebrate()

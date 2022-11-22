@@ -4,12 +4,15 @@
 #include "maze.h"
 #include "motor.h"
 #include "ultrasonic_sensor.h"
+#include "stack.h"
 
 class Robot
 {
   private:
     uint8_t x, y;
     uint8_t orientation;
+
+    Stack movementTraceBack;
 
     Maze maze;
 
@@ -30,12 +33,16 @@ class Robot
     uint8_t decideCrossroad(uint8_t wallsMask, bool isCrossroadAlreadyVisited);
     uint8_t getCorridorDirection(uint8_t wallsMask);
 
-    void moveForward();
-    void moveBackwards();
-    void moveLeft();
-    void moveRight();
+    void goForward();
+    void goBackwards();
+    void turnLeftBackwards();
+    void turnLeftForward();
+    void turnRightBackwards();
+    void turnRightForward();
     
-    void physicallyMoveRobot(uint8_t direction);
+    void maneuverOverCrossroad(bool isMovingBackwards);
+    void physicallyMoveRobot(uint8_t direction, uint8_t wallsMask, bool isCrossroad);
+    void returnFromDeadEnd();
     
     void solveMaze();
 
