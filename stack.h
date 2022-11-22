@@ -14,6 +14,7 @@ class Stack
 
     uint8_t getSize();
     bool empty();
+    void clear();
     
     uint8_t top();
     void push(uint8_t newValue);

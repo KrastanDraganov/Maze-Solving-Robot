@@ -20,6 +20,14 @@ bool Stack::empty()
   return (stackSize == 0);
 }
 
+void Stack::clear()
+{
+  while (!empty())
+  {
+    pop();
+  }
+}
+
 uint8_t Stack::top()
 {
   if (empty())
