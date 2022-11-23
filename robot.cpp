@@ -169,6 +169,35 @@ void Robot::maneuverOverCrossroadToDifferentPosition(uint8_t targetDirection, ui
   orientation = OPPOSITE_ORIENTATIONS[orientation];
 }
 
+void Robot::maneuverOverCrossroadToSamePosition(uint8_t wallsMask)
+{
+  bool isFrontWallSet = (wallsMask & (1 << FORWARD));
+  bool isLeftWallSet = (wallsMask & (1 << LEFT));
+  bool isRightWallSet = (wallsMask & (1 << RIGHT));
+
+  if (!isFrontWallSet)
+  {
+    goForward();
+    
+    if (!isLeftWallSet)
+    {
+      turnLeftBackwards();
+      turnRightForward();
+    }
+    else if (!isRightWallSet)
+    {
+      turnRightBackwards();
+      turnLeftForward();
+    }
+  }
+  else // if there is front wall, there are definitely no left and right walls
+  {
+    turnLeftForward();
+    goBackwards();
+    turnLeftForward();
+  }
+}
+
 void Robot::physicallyMoveRobot(uint8_t direction, uint8_t wallsMask, bool isCrossroad)
 {
   if (isCrossroad)
@@ -181,7 +210,7 @@ void Robot::physicallyMoveRobot(uint8_t direction, uint8_t wallsMask, bool isCro
 
   if (isCrossroad and direction == BACKWARDS)
   {
-    // maneuverOverCrossroad(false, wallsMask);
+    maneuverOverCrossroadToSamePosition(wallsMask);
   }
   else if (direction == FORWARD)
   {

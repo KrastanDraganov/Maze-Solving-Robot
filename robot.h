@@ -41,6 +41,7 @@ class Robot
     void turnRightForward();
     
     void maneuverOverCrossroadToDifferentPosition(uint8_t targetDirection, uint8_t wallsMask);
+    void maneuverOverCrossroadToSamePosition(uint8_t wallsMask);
     void physicallyMoveRobot(uint8_t direction, uint8_t wallsMask, bool isCrossroad);
     void returnFromDeadEnd();
     
