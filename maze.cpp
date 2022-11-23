@@ -79,3 +79,25 @@ uint8_t Maze::getDistanceToFinal(uint8_t coordinate)
 
   return coordinate - MAZE_FINAL_HIGH_BOUNDARY;
 }
+
+void Maze::resetValues(uint8_t reachedX)
+{
+  uint8_t newY = MAZE_SIZE - 2;
+
+  for (int x = 0; x < reachedX; ++x)
+  {
+    cellWalls[x][newY] = cellWalls[x][0];
+
+    bool isLeftWallSet = (cellWalls[x][0] & (1 << LEFT));
+    if (isLeftWallSet)
+    {
+      cellWalls[x][newY - 1] |= (1 << RIGHT);
+    }
+
+    bool isRightWallSet = (cellWalls[x][0] & (1 << RIGHT));
+    if (isRightWallSet)
+    {
+      cellWalls[x][1] ^= (1 << LEFT);
+    }
+  }
+}

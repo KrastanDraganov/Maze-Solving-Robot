@@ -7,10 +7,10 @@ const uint8_t MAZE_SIZE = 16;
 const uint8_t MAZE_FINAL_LOW_BOUNDARY = 7;
 const uint8_t MAZE_FINAL_HIGH_BOUNDARY = 8;
 
-const double CLOSE_TO_LEFT_RIGHT_WALL_DISTANCE_CM = 4.0;
-const double CLOSE_TO_FRONT_WALL_DISTANCE_CM = 8.0;
+const double CLOSE_TO_LEFT_RIGHT_WALL_DISTANCE_CM = 7.0;
+const double CLOSE_TO_FRONT_WALL_DISTANCE_CM = 12.0;
 
-const uint32_t START_FORWARD_ROTATIONS = 50;
+const uint32_t START_FORWARD_ROTATIONS = 300;
 const uint32_t DEFAULT_FORWARD_ROTATIONS = 555;
 
 const uint8_t MARKERS_LIMIT = 2;
@@ -66,6 +66,7 @@ static volatile uint32_t ticks[2];
 static void readRightEncoder()
 {
   ++ticks[RIGHT];
+  // Serial.println(ticks[RIGHT]);
 }
 
 static void readLeftEncoder()

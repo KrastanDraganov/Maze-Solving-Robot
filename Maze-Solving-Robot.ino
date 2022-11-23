@@ -2,20 +2,31 @@
 
 Robot robot;
 
+bool flag = false;
+
 void setup() 
 {
+  Serial.begin(9600);
+  // delay(1000);
+
   robot.initializeSensors();
   robot.initializeMotors();
 }
 
 void loop() 
 {
-  if (!robot.didFinish())
+  if (!flag)
   {
-    robot.solveMaze();
+    robot.testDrive();
+    flag = true;
   }
-  else
-  {
-    robot.celebrate();
-  }
+
+  // if (!robot.didFinish())
+  // {
+  //   robot.solveMaze();
+  // }
+  // else
+  // {
+  //   robot.celebrate();
+  // }
 }

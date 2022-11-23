@@ -59,17 +59,31 @@ void Motor::stopMotor()
 
   digitalWrite(inputPin1, LOW);
   digitalWrite(inputPin2, LOW);
-
-  ticks[ticksIndex] = 0;
-  previousEncoderTicks = 0;
 }
 
 volatile uint32_t Motor::getRPM()
 {
   uint32_t currentEncoderTicks = ticks[ticksIndex];
 
+  Serial.print(ticksIndex);
+  Serial.print(": ");
+  Serial.print(currentEncoderTicks);
+  Serial.print(" ");
+  Serial.print(previousEncoderTicks);
+  Serial.print(" -> ");
+
   uint32_t rpm = currentEncoderTicks - previousEncoderTicks;
   previousEncoderTicks = currentEncoderTicks;
+
+  Serial.print(rpm);
+  Serial.print(" ");
+  Serial.println(previousEncoderTicks);
   
   return rpm;
+}
+
+void Motor::resetTicks()
+{
+  ticks[ticksIndex] = 0;
+  previousEncoderTicks = 0;
 }

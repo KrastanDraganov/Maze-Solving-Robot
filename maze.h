@@ -21,6 +21,8 @@ class Maze
     void updateCorridorMarkersCount(uint8_t x, uint8_t y, uint8_t orientation, uint8_t direction, uint8_t newMarkersCount);
 
     uint8_t getDistanceToFinal(uint8_t x);
+
+    void resetValues(uint8_t reachedX);
 };
 
 #endif

@@ -25,6 +25,7 @@ class Motor
     void stopMotor();
 
     volatile uint32_t getRPM();
+    void resetTicks();
 };
 
 #endif

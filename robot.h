@@ -50,6 +50,8 @@ class Robot
 
     bool didFinish();
     void celebrate();
+
+    void testDrive();
 };
 
 #endif
