@@ -344,7 +344,7 @@ void Robot::goForward(uint32_t rotations)
   while (counter < rotations)
   {
     rightMotor.setMotor(FORWARD, speedRight);
-    leftMotor.setMotor(BACKWARDS, speedLeft);
+    leftMotor.setMotor(FORWARD, speedLeft);
  
     volatile uint32_t rightRPM = rightMotor.getRPM();
     volatile uint32_t leftRPM = leftMotor.getRPM();
@@ -385,7 +385,49 @@ void Robot::goBackwards()
 {
   interrupts();
 
-
+  uint32_t rotations = 460;
+  uint32_t counter = 0;
+  
+  uint8_t speedRight = 140;
+  uint8_t speedLeft = 119;
+ 
+  while (counter < rotations)
+  {
+ 
+    rightMotor.setMotor(BACKWARDS, speedRight);
+    leftMotor.setMotor(BACKWARDS, speedLeft);
+ 
+    volatile uint32_t rightRPM = rightMotor.getRPM();
+    volatile uint32_t leftRPM = leftMotor.getRPM();
+ 
+    counter += rightRPM;
+ 
+    if (rightRPM > leftRPM)
+    {
+      speedLeft += 2;
+    }
+    else
+    {
+      speedRight += 2;
+    }
+    
+    if (speedRight > 130 or speedLeft > 130)
+    {
+      if (speedRight > speedLeft)
+      {
+        speedRight = 120 + (speedRight - speedLeft);
+        speedLeft = 120;
+      }
+      else
+      {
+        speedRight = 120;
+        speedLeft = 120 + (speedLeft - speedRight);
+      }
+    }
+  }
+ 
+  rightMotor.stopMotor();
+  leftMotor.stopMotor();
 
   noInterrupts();
 }
@@ -394,7 +436,66 @@ void Robot::turnLeftBackwards()
 {
   interrupts();
 
+  uint32_t rotations = 10;
+  uint32_t counter = 0;
+  
+  uint8_t speedRight = 100;
+  uint8_t speedLeft = 100;
 
+  while (counter < rotations)
+  {
+    rightMotor.setMotor(BACKWARDS, speedRight);
+    leftMotor.setMotor(BACKWARDS, speedLeft);
+
+    volatile uint32_t rightRPM = rightMotor.getRPM();
+    volatile uint32_t leftRPM = leftMotor.getRPM();
+
+    counter += rightRPM;
+  }
+
+  rightMotor.stopMotor();
+  leftMotor.stopMotor();
+
+  rotations = 700;
+  counter = 0;
+
+  speedRight = 240;
+  speedLeft = 45;
+
+  while (counter < rotations)
+  {
+    rightMotor.setMotor(BACKWARDS, speedRight);
+    leftMotor.setMotor(BACKWARDS, speedLeft);
+
+    volatile uint32_t rightRPM = rightMotor.getRPM();
+    volatile uint32_t leftRPM = leftMotor.getRPM();
+
+    counter += rightRPM;
+  }
+
+  rightMotor.stopMotor();
+  leftMotor.stopMotor();
+  delay(10);
+
+  rotations = 5;
+  counter = 0;
+
+  speedRight = 100;
+  speedLeft = 100;
+
+  while (counter < rotations)
+  {
+    rightMotor.setMotor(BACKWARDS, speedRight);
+    leftMotor.setMotor(BACKWARDS, speedLeft);
+
+    volatile uint32_t rightRPM = rightMotor.getRPM();
+    volatile uint32_t leftRPM = leftMotor.getRPM();
+
+    counter += rightRPM;
+  }
+
+  rightMotor.stopMotor();
+  leftMotor.stopMotor();
 
   noInterrupts();
 }
@@ -403,7 +504,46 @@ void Robot::turnLeftForward()
 {
   interrupts();
 
+  uint32_t rotations = 720;
+  uint32_t counter = 0;
+  
+  uint8_t speedRight = 240;
+  uint8_t speedLeft = 55;
 
+  while (counter < rotations)
+  {
+    rightMotor.setMotor(FORWARD, speedRight);
+    leftMotor.setMotor(FORWARD, speedLeft);
+
+    volatile uint32_t rightRPM = rightMotor.getRPM();
+    volatile uint32_t leftRPM = leftMotor.getRPM();
+
+    counter += rightRPM;
+  }
+
+  rightMotor.stopMotor();
+  leftMotor.stopMotor();
+  delay(10);
+
+  rotations = 100;
+  counter = 0;
+
+  speedRight = 20;
+  speedLeft = 100;
+
+  while (counter < rotations)
+  {
+    rightMotor.setMotor(FORWARD, speedRight);
+    leftMotor.setMotor(FORWARD, speedLeft);
+
+    volatile uint32_t rightRPM = rightMotor.getRPM();
+    volatile uint32_t leftRPM = leftMotor.getRPM();
+
+    counter += leftRPM;
+  }
+
+  rightMotor.stopMotor();
+  leftMotor.stopMotor();
 
   noInterrupts();
 }
@@ -412,7 +552,66 @@ void Robot::turnRightBackwards()
 {
   interrupts();
 
+  uint32_t rotations = 10;
+  uint32_t counter = 0;
   
+  uint8_t speedRight = 100;
+  uint8_t speedLeft = 100;
+
+  while (counter < rotations)
+  {
+    rightMotor.setMotor(BACKWARDS, speedRight);
+    leftMotor.setMotor(BACKWARDS, speedLeft);
+
+    volatile uint32_t rightRPM = rightMotor.getRPM();
+    volatile uint32_t leftRPM = leftMotor.getRPM();
+
+    counter += rightRPM;
+  }
+
+  rightMotor.stopMotor();
+  leftMotor.stopMotor();
+
+  rotations = 700;
+  counter = 0;
+
+  speedRight = 52;
+  speedLeft = 220;
+
+  while (counter < rotations)
+  {
+    rightMotor.setMotor(BACKWARDS, speedRight);
+    leftMotor.setMotor(BACKWARDS, speedLeft);
+
+    volatile uint32_t rightRPM = rightMotor.getRPM();
+    volatile uint32_t leftRPM = leftMotor.getRPM();
+
+    counter += leftRPM;
+  }
+
+  rightMotor.stopMotor();
+  leftMotor.stopMotor();
+  delay(10);
+
+  rotations = 5;
+  counter = 0;
+
+  speedRight = 100;
+  speedLeft = 100;
+
+  while (counter < rotations)
+  {
+    rightMotor.setMotor(BACKWARDS, speedRight);
+    leftMotor.setMotor(BACKWARDS, speedLeft);
+
+    volatile uint32_t rightRPM = rightMotor.getRPM();
+    volatile uint32_t leftRPM = leftMotor.getRPM();
+
+    counter += rightRPM;
+  }
+
+  rightMotor.stopMotor();
+  leftMotor.stopMotor();
 
   noInterrupts();
 }
@@ -421,7 +620,46 @@ void Robot::turnRightForward()
 {
   interrupts();
 
+  uint32_t rotations = 700;
+  uint32_t counter = 0;
   
+  uint8_t speedRight = 45;
+  uint8_t speedLeft = 235;
+
+  while (counter < rotations)
+  {
+    rightMotor.setMotor(FORWARD, speedRight);
+    leftMotor.setMotor(FORWARD, speedLeft);
+
+    volatile uint32_t rightRPM = rightMotor.getRPM();
+    volatile uint32_t leftRPM = leftMotor.getRPM();
+
+    counter += leftRPM;
+  }
+
+  rightMotor.stopMotor();
+  leftMotor.stopMotor();
+  delay(10);
+
+  rotations = 95;
+  counter = 0;
+
+  speedRight = 100;
+  speedLeft = 30;
+
+  while (counter < rotations)
+  {
+    rightMotor.setMotor(FORWARD, speedRight);
+    leftMotor.setMotor(FORWARD, speedLeft);
+
+    volatile uint32_t rightRPM = rightMotor.getRPM();
+    volatile uint32_t leftRPM = leftMotor.getRPM();
+
+    counter += rightRPM;
+  }
+
+  rightMotor.stopMotor();
+  leftMotor.stopMotor();
 
   noInterrupts();
 }
