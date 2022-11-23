@@ -31,17 +31,17 @@ bool Robot::checkForWallUsingSensors(uint8_t direction)
 {
   if (direction == RIGHT)
   {
-    return rightSensor.measureDistance() < CLOSE_TO_WALL_DISTANCE_CM;
+    return rightSensor.measureDistance() < CLOSE_TO_LEFT_RIGHT_WALL_DISTANCE_CM;
   }
   
   if (direction == LEFT)
   {
-    return leftSensor.measureDistance() < CLOSE_TO_WALL_DISTANCE_CM;
+    return leftSensor.measureDistance() < CLOSE_TO_LEFT_RIGHT_WALL_DISTANCE_CM;
   }
   
   if (direction == FORWARD)
   {
-    return frontSensor.measureDistance() < CLOSE_TO_WALL_DISTANCE_CM;
+    return frontSensor.measureDistance() < CLOSE_TO_FRONT_WALL_DISTANCE_CM;
   }
 
   return false;
@@ -129,7 +129,7 @@ void Robot::maneuverOverCrossroadToDifferentPosition(uint8_t targetDirection, ui
   {
     if (!isFrontWallSet)
     {
-      goForward();
+      goForward(DEFAULT_FORWARD_ROTATIONS);
       turnLeftBackwards();
     }
     else if (!isRightWallSet)
@@ -142,7 +142,7 @@ void Robot::maneuverOverCrossroadToDifferentPosition(uint8_t targetDirection, ui
   {
     if (!isFrontWallSet)
     {
-      goForward();
+      goForward(DEFAULT_FORWARD_ROTATIONS);
       turnRightBackwards();
     }
     else if (!isLeftWallSet)
@@ -177,7 +177,7 @@ void Robot::maneuverOverCrossroadToSamePosition(uint8_t wallsMask)
 
   if (!isFrontWallSet)
   {
-    goForward();
+    goForward(DEFAULT_FORWARD_ROTATIONS);
     
     if (!isLeftWallSet)
     {
@@ -214,7 +214,15 @@ void Robot::physicallyMoveRobot(uint8_t direction, uint8_t wallsMask, bool isCro
   }
   else if (direction == FORWARD)
   {
-    goForward();
+    bool isStartingPosition = (x == 0 and y == 0);
+    if (isStartingPosition)
+    {
+      goForward(START_FORWARD_ROTATIONS);
+    }
+    else
+    {
+      goForward(DEFAULT_FORWARD_ROTATIONS);
+    }
   }
   else if (direction == LEFT)
   {
@@ -224,7 +232,6 @@ void Robot::physicallyMoveRobot(uint8_t direction, uint8_t wallsMask, bool isCro
   {
     turnRightForward();
   }
-
 }
 
 void Robot::returnFromDeadEnd()
@@ -326,34 +333,97 @@ bool Robot::didFinish()
   return (distanceToFinal == 0);
 }
 
-void Robot::goForward()
+void Robot::goForward(uint32_t rotations)
 {
+  interrupts();
 
+  uint8_t speedRight = 120;
+  uint8_t speedLeft = 119;
+  uint32_t counter = 0;
+ 
+  while (counter < rotations)
+  {
+    rightMotor.setMotor(FORWARD, speedRight);
+    leftMotor.setMotor(BACKWARDS, speedLeft);
+ 
+    volatile uint32_t rightRPM = rightMotor.getRPM();
+    volatile uint32_t leftRPM = leftMotor.getRPM();
+ 
+    counter += rightRPM;
+
+    if (rightRPM > leftRPM)
+    {
+      speedLeft += 2;
+    }
+    else
+    {
+      speedRight += 2;
+    }
+    
+    if (speedRight > 130 or speedLeft > 130)
+    {
+      if (speedRight > speedLeft)
+      {
+        speedRight = 120 + (speedRight - speedLeft);
+        speedLeft = 120;
+      }
+      else
+      {
+        speedRight = 120;
+        speedLeft = 120 + (speedLeft - speedRight);
+      }
+    }
+  }
+
+  rightMotor.stopMotor();
+  leftMotor.stopMotor();
+
+  noInterrupts();
 }
 
 void Robot::goBackwards()
 {
+  interrupts();
 
+
+
+  noInterrupts();
 }
 
 void Robot::turnLeftBackwards()
 {
+  interrupts();
 
+
+
+  noInterrupts();
 }
 
 void Robot::turnLeftForward()
 {
+  interrupts();
 
+
+
+  noInterrupts();
 }
 
 void Robot::turnRightBackwards()
 {
+  interrupts();
 
+  
+
+  noInterrupts();
 }
 
 void Robot::turnRightForward()
 {
+  interrupts();
 
+  
+
+  noInterrupts();
 }
 
 void Robot::celebrate()

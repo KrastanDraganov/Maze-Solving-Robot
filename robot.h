@@ -22,6 +22,7 @@ class Robot
 
     Motor leftMotor;
     Motor rightMotor;
+
   public:
     Robot();
 
@@ -33,7 +34,7 @@ class Robot
     uint8_t decideCrossroad(uint8_t wallsMask, bool isCrossroadAlreadyVisited);
     uint8_t getCorridorDirection(uint8_t wallsMask);
 
-    void goForward();
+    void goForward(uint32_t rotations);
     void goBackwards();
     void turnLeftBackwards();
     void turnLeftForward();
