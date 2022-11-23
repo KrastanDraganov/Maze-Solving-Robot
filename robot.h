@@ -40,7 +40,7 @@ class Robot
     void turnRightBackwards();
     void turnRightForward();
     
-    void maneuverOverCrossroad(bool isMovingBackwards, uint8_t wallsMask);
+    void maneuverOverCrossroadToDifferentPosition(uint8_t targetDirection, uint8_t wallsMask);
     void physicallyMoveRobot(uint8_t direction, uint8_t wallsMask, bool isCrossroad);
     void returnFromDeadEnd();
     
