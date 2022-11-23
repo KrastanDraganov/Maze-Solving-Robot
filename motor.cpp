@@ -39,8 +39,6 @@ void Motor::setupMotor()
 
 void Motor::setMotor(uint8_t direction, uint8_t speed)
 {
-  interrupts();
-
   analogWrite(pwmPin, speed);
 
   if (direction == FORWARD)
@@ -57,8 +55,6 @@ void Motor::setMotor(uint8_t direction, uint8_t speed)
 
 void Motor::stopMotor()
 {
-  noInterrupts();
-
   analogWrite(pwmPin, 0);
 
   digitalWrite(inputPin1, LOW);
