@@ -21,12 +21,12 @@ void loop()
     flag = true;
   }
 
-  // if (!robot.didFinish())
-  // {
-  //   robot.solveMaze();
-  // }
-  // else
-  // {
-  //   robot.celebrate();
-  // }
+//  if (!robot.didFinish())
+//  {
+//    robot.solveMaze();
+//  }
+//  else
+//  {
+//    robot.celebrate();
+//  }
 }

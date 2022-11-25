@@ -65,19 +65,8 @@ volatile uint32_t Motor::getRPM()
 {
   uint32_t currentEncoderTicks = ticks[ticksIndex];
 
-  Serial.print(ticksIndex);
-  Serial.print(": ");
-  Serial.print(currentEncoderTicks);
-  Serial.print(" ");
-  Serial.print(previousEncoderTicks);
-  Serial.print(" -> ");
-
   uint32_t rpm = currentEncoderTicks - previousEncoderTicks;
   previousEncoderTicks = currentEncoderTicks;
-
-  Serial.print(rpm);
-  Serial.print(" ");
-  Serial.println(previousEncoderTicks);
   
   return rpm;
 }
