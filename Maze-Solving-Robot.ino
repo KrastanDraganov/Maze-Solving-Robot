@@ -7,7 +7,6 @@ bool flag = false;
 void setup() 
 {
   Serial.begin(9600);
-  // delay(1000);
 
   robot.initializeSensors();
   robot.initializeMotors();
@@ -15,18 +14,20 @@ void setup()
 
 void loop() 
 {
-  if (!flag)
-  {
-    robot.testDrive();
-    flag = true;
-  }
+  // if (!flag)
+  // {
+  //   robot.testDrive();
+  //   flag = false;
+  // }
+  
 
-//  if (!robot.didFinish())
-//  {
-//    robot.solveMaze();
-//  }
-//  else
-//  {
-//    robot.celebrate();
-//  }
+  if (!robot.didFinish())
+  {
+    robot.solveMaze();
+  }
+  else
+  {
+    Serial.println("celebrate");
+    robot.celebrate();
+  }
 }

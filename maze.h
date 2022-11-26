@@ -23,6 +23,8 @@ class Maze
     uint8_t getDistanceToFinal(uint8_t x);
 
     void resetValues(uint8_t reachedX);
+
+    void printMaze();
 };
 
 #endif

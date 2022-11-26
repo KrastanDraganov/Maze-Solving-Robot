@@ -101,3 +101,24 @@ void Maze::resetValues(uint8_t reachedX)
     }
   }
 }
+
+void Maze::printMaze()
+{
+  for (int i = 0; i < 3; ++i)
+  {
+    for (int j = 0; j < 3; ++j)
+    {
+      Serial.print("(");
+      Serial.print(i);
+      Serial.print(", ");
+      Serial.print(j);
+      Serial.print(") -> ");
+      for (int k = 0; k < 4; ++k)
+      {
+        Serial.print(cellCorridorsMarkers[i][j][k]);
+        Serial.print(" ");
+      }
+      Serial.println();
+    }
+  }
+}
