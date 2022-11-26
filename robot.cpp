@@ -7,11 +7,6 @@ void Robot::testDrive()
   Serial.print(leftSensor.measureDistance());
   Serial.print(" ");
   Serial.println(rightSensor.measureDistance());
-
-  for (int i = 0; i < 0; ++i)
-  {
-    goBackwards();
-  }
 }
 
 Robot::Robot()
@@ -272,7 +267,14 @@ void Robot::returnFromDeadEnd()
     x = x + BACKWARDS_MOVEMENT_CHANGES[orientation][X];
     y = y + BACKWARDS_MOVEMENT_CHANGES[orientation][Y];
 
-    orientation = BACKWARDS_ORIENTATION_CHANGES[orientation][currentDirection];
+    if (currentDirection == FORWARD)
+    {
+      orientation = BACKWARDS_ORIENTATION_CHANGES[orientation][BACKWARDS];
+    }
+    else
+    {
+      orientation = BACKWARDS_ORIENTATION_CHANGES[orientation][currentDirection];
+    }
 
     lastDirection = currentDirection;
   }
@@ -285,15 +287,15 @@ void Robot::returnFromDeadEnd()
 
 void Robot::solveMaze()
 {
-  Serial.print(x);
-  Serial.print(" ");
-  Serial.println(y);
-  Serial.println(orientation);
-  Serial.println();
+  // Serial.print(x);
+  // Serial.print(" ");
+  // Serial.println(y);
+  // Serial.println(orientation);
+  // Serial.println();
 
-  maze.printMaze();
+  // maze.printMaze();
 
-  Serial.println();
+  // Serial.println();
 
   uint8_t wallsMask = 0;
   uint8_t corridorsCounter = 0;
@@ -471,7 +473,6 @@ void Robot::goBackwards()
  
   while (counter < rotations)
   {
- 
     rightMotor.setMotor(BACKWARDS, speedRight);
     leftMotor.setMotor(BACKWARDS, speedLeft);
  
@@ -479,6 +480,75 @@ void Robot::goBackwards()
     volatile uint32_t leftRPM = leftMotor.getRPM();
  
     counter += rightRPM;
+
+    bool isLeftWall = (leftSensor.measureDistance() < CLOSE_TO_LEFT_RIGHT_WALL_DISTANCE_CM);
+    bool isRightWall = (rightSensor.measureDistance() < CLOSE_TO_LEFT_RIGHT_WALL_DISTANCE_CM);
+
+    // if (isLeftWall and isRightWall)
+    // {
+    //   speedLeft=50;
+    //   if (leftSensor.measureDistance() < rightSensor.measureDistance())
+    //   {
+    //     speedLeft += 1;
+    //   }
+    //   else
+    //   {
+    //     speedLeft -= 1; 
+    //   }
+    // }
+    // else if (isLeftWall)
+    // {
+    //   speedLeft = 50;
+
+    //   if (leftSensor.measureDistance() < 5)
+    //   {
+    //     speedLeft += 2;
+    //   }
+    //   else if (leftSensor.measureDistance() > 6 and leftSensor.measureDistance() < 8)
+    //   {
+    //     speedLeft -= 2;
+    //   }
+    //   else if (rightRPM > leftRPM)
+    //   {
+    //     speedLeft += 1;
+    //   }
+    //   else if (rightRPM < leftRPM)
+    //   {
+    //     speedLeft -= 1;
+    //   }
+    // }
+    // else if (isRightWall)
+    // {
+    //   speedLeft = 50;
+
+    //   if (rightSensor.measureDistance() < 5)
+    //   {
+    //     speedLeft -= 2;
+    //   }
+    //   else if (rightSensor.measureDistance() > 6 and rightSensor.measureDistance() < 8)
+    //   {
+    //     speedLeft += 2;
+    //   }
+    //   else if (rightRPM > leftRPM)
+    //   {
+    //     speedLeft += 1;
+    //   }
+    //   else if (rightRPM < leftRPM)
+    //   {
+    //     speedLeft -= 1;
+    //   }
+    // }
+    // else
+    // {
+    //   if (rightRPM > leftRPM)
+    //   {
+    //     speedLeft += 1;
+    //   }
+    //   else if (rightRPM < leftRPM)
+    //   {
+    //     speedLeft -= 1;
+    //   }
+    // }
 
     if (leftSensor.measureDistance() < 4)
     {
@@ -495,24 +565,9 @@ void Robot::goBackwards()
     else if(rightRPM < leftRPM)
     {
         speedLeft -= 1;
-      }
     }
-    
-    /*if (speedRight > 130 or speedLeft > 130)
-    {
-      if (speedRight > speedLeft)
-      {
-        speedRight = 120 + (speedRight - speedLeft);
-        speedLeft = 120;
-      }
-      else
-      {
-        speedRight = 120;
-        speedLeft = 120 + (speedLeft - speedRight);
-      }
-    }*/
-  
- 
+  }
+
   rightMotor.stopMotor();
   leftMotor.stopMotor();
 

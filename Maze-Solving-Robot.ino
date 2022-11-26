@@ -19,7 +19,6 @@ void loop()
   //   robot.testDrive();
   //   flag = false;
   // }
-  
 
   if (!robot.didFinish())
   {
@@ -27,7 +26,6 @@ void loop()
   }
   else
   {
-    Serial.println("celebrate");
     robot.celebrate();
   }
 }

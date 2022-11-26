@@ -30,6 +30,8 @@ double UltrasonicSensor::measureDistance()
   double duration = pulseIn(echoPin, HIGH);
  
   double distance = (duration * 0.034) / 2.0;
+
+  delayMicroseconds(250);
  
   return distance;
 }

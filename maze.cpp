@@ -91,7 +91,7 @@ void Maze::resetValues(uint8_t reachedX)
     bool isLeftWallSet = (cellWalls[x][0] & (1 << LEFT));
     if (isLeftWallSet)
     {
-      cellWalls[x][newY - 1] |= (1 << RIGHT);
+      cellWalls[x][newY - 1] ^= (1 << RIGHT);
     }
 
     bool isRightWallSet = (cellWalls[x][0] & (1 << RIGHT));
