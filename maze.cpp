@@ -108,17 +108,17 @@ void Maze::printMaze()
   {
     for (int j = 0; j < 3; ++j)
     {
-      Serial.print("(");
-      Serial.print(i);
-      Serial.print(", ");
-      Serial.print(j);
-      Serial.print(") -> ");
+      // Serial.print("(");
+      // Serial.print(i);
+      // Serial.print(", ");
+      // Serial.print(j);
+      // Serial.print(") -> ");
       for (int k = 0; k < 4; ++k)
       {
-        Serial.print(cellCorridorsMarkers[i][j][k]);
-        Serial.print(" ");
+        // Serial.print(cellCorridorsMarkers[i][j][k]);
+        // Serial.print(" ");
       }
-      Serial.println();
+      // Serial.println();
     }
   }
 }
