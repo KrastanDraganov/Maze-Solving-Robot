@@ -1,9 +1,11 @@
 #ifndef ROBOT_H
 #define ROBOT_H
 
+#include <AccelStepper.h>
+#include <Adafruit_MotorShield.h>
+
 #include "maze.h"
-#include "motor.h"
-#include "ultrasonic_sensor.h"
+#include "infrared_sensor.h"
 #include "stack.h"
 
 class Robot
@@ -16,12 +18,9 @@ class Robot
 
     Maze maze;
 
-    UltrasonicSensor leftSensor;
-    UltrasonicSensor rightSensor;
-    UltrasonicSensor frontSensor;
-
-    Motor leftMotor;
-    Motor rightMotor;
+    InfraredSensor leftSensor;
+    InfraredSensor rightSensor;
+    InfraredSensor frontSensor;
 
   public:
     Robot();
@@ -34,7 +33,8 @@ class Robot
     uint8_t decideCrossroad(uint8_t wallsMask, bool isCrossroadAlreadyVisited);
     uint8_t getCorridorDirection(uint8_t wallsMask);
 
-    void goForward(uint32_t rotations);
+    void runMotors();
+    void goForward();
     void goBackwards();
     void turnLeftBackwards();
     void turnLeftForward();

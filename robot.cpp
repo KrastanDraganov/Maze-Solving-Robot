@@ -1,12 +1,56 @@
 #include "robot.h"
 
+Adafruit_MotorShield motorShield(STEPPER_MOTOR_SHIELD_ADDRESS);
+
+Adafruit_StepperMotor *leftMotorDriver = motorShield.getStepper(STEPPER_MOTOR_STEPS_PER_REVOLUTION, LEFT_STEPPER_MOTOR_INDEX);
+Adafruit_StepperMotor *rightMotorDriver = motorShield.getStepper(STEPPER_MOTOR_STEPS_PER_REVOLUTION, RIGHT_STEPPER_MOTOR_INDEX);
+
+void leftMotorStepForward()
+{
+  leftMotorDriver->onestep(FORWARD, SINGLE);
+}
+
+void leftMotorStepBackward()
+{
+  leftMotorDriver->onestep(BACKWARD, SINGLE);
+}
+
+void rightMotorStepForward()
+{
+  rightMotorDriver->onestep(FORWARD, SINGLE);
+}
+
+void rightMotorStepBackward()
+{
+  rightMotorDriver->onestep(BACKWARD, SINGLE);
+}
+
+AccelStepper leftMotorMotionController(leftMotorStepForward, leftMotorStepBackward);
+AccelStepper rightMotorMotionController(rightMotorStepForward, rightMotorStepBackward);
+
+int cells = 0;
+
 void Robot::testDrive()
 {
-  Serial.print(frontSensor.measureDistance());
-  Serial.print(" ");
-  Serial.print(leftSensor.measureDistance());
-  Serial.print(" ");
-  Serial.println(rightSensor.measureDistance());
+
+  Serial.print("FRONT --> ");
+  Serial.println(frontSensor.isNearObstacle());
+  Serial.println();
+
+  Serial.print("RIGHT --> ");
+  Serial.println(rightSensor.isNearObstacle());
+  Serial.println();
+
+  Serial.print("LEFT --> ");
+  Serial.println(leftSensor.isNearObstacle());
+  Serial.println();
+  // if (cells == 0 || (cells < 5 && leftMotorMotionController.distanceToGo() == 0)) {
+  //   delay(3000);
+
+  //   goForward();
+
+  //   ++cells;
+  // }
 }
 
 Robot::Robot()
@@ -14,42 +58,38 @@ Robot::Robot()
   x = y = 0;
   orientation = DOWN;
 
-  leftSensor = UltrasonicSensor(A5, A4);
-  rightSensor = UltrasonicSensor(A3, A2);
-  frontSensor = UltrasonicSensor(A1, A0);
-
-  leftMotor = Motor(12, 13, 6, 2, LEFT);
-  rightMotor = Motor(8, 7, 5, 3, RIGHT);
+  leftSensor = InfraredSensor(4, A2);
+  rightSensor = InfraredSensor(3, A1);
+  frontSensor = InfraredSensor(2, A0);
 }
 
 void Robot::initializeSensors()
 {
-  leftSensor.setupSensor();
-  rightSensor.setupSensor();
-  frontSensor.setupSensor();
+  leftSensor.setup();
+  rightSensor.setup();
+  frontSensor.setup();
 }
 
 void Robot::initializeMotors()
 {
-  leftMotor.setupMotor();
-  rightMotor.setupMotor();
+  motorShield.begin();
 }
 
 bool Robot::checkForWallUsingSensors(uint8_t direction)
 {
   if (direction == RIGHT)
   {
-    return rightSensor.measureDistance() < CLOSE_TO_LEFT_RIGHT_WALL_DISTANCE_CM;
+    return rightSensor.isNearObstacle();
   }
-  
+
   if (direction == LEFT)
   {
-    return leftSensor.measureDistance() < CLOSE_TO_LEFT_RIGHT_WALL_DISTANCE_CM;
+    return leftSensor.isNearObstacle();
   }
-  
-  if (direction == FORWARD)
+
+  if (direction == FORWARDS)
   {
-    return frontSensor.measureDistance() < CLOSE_TO_FRONT_WALL_DISTANCE_CM;
+    return frontSensor.isNearObstacle();
   }
 
   return false;
@@ -129,7 +169,7 @@ uint8_t Robot::getCorridorDirection(uint8_t wallsMask)
 
 void Robot::maneuverOverCrossroadToDifferentPosition(uint8_t targetDirection, uint8_t wallsMask)
 {
-  bool isFrontWallSet = (wallsMask & (1 << FORWARD));
+  bool isFrontWallSet = (wallsMask & (1 << FORWARDS));
   bool isLeftWallSet = (wallsMask & (1 << LEFT));
   bool isRightWallSet = (wallsMask & (1 << RIGHT));
 
@@ -137,7 +177,8 @@ void Robot::maneuverOverCrossroadToDifferentPosition(uint8_t targetDirection, ui
   {
     if (!isFrontWallSet)
     {
-      goForward(DEFAULT_FORWARD_ROTATIONS);
+      // goForward(DEFAULT_FORWARD_ROTATIONS);
+      goForward();
       turnLeftBackwards();
     }
     else if (!isRightWallSet)
@@ -150,16 +191,17 @@ void Robot::maneuverOverCrossroadToDifferentPosition(uint8_t targetDirection, ui
   {
     if (!isFrontWallSet)
     {
-      goForward(DEFAULT_FORWARD_ROTATIONS);
+      // goForward(DEFAULT_FORWARD_ROTATIONS);
+      goForward();
       turnRightBackwards();
     }
     else if (!isLeftWallSet)
     {
       turnLeftForward();
-      goBackwards();      
+      goBackwards();
     }
   }
-  else if (targetDirection == FORWARD)
+  else if (targetDirection == FORWARDS)
   {
     if (!isLeftWallSet)
     {
@@ -179,14 +221,15 @@ void Robot::maneuverOverCrossroadToDifferentPosition(uint8_t targetDirection, ui
 
 void Robot::maneuverOverCrossroadToSamePosition(uint8_t wallsMask)
 {
-  bool isFrontWallSet = (wallsMask & (1 << FORWARD));
+  bool isFrontWallSet = (wallsMask & (1 << FORWARDS));
   bool isLeftWallSet = (wallsMask & (1 << LEFT));
   bool isRightWallSet = (wallsMask & (1 << RIGHT));
 
   if (!isFrontWallSet)
   {
-    goForward(DEFAULT_FORWARD_ROTATIONS);
-    
+    // goForward(DEFAULT_FORWARD_ROTATIONS);
+    goForward();
+
     if (!isLeftWallSet)
     {
       turnLeftBackwards();
@@ -220,16 +263,18 @@ void Robot::physicallyMoveRobot(uint8_t direction, uint8_t wallsMask, bool isCro
   {
     maneuverOverCrossroadToSamePosition(wallsMask);
   }
-  else if (direction == FORWARD)
+  else if (direction == FORWARDS)
   {
     bool isStartingPosition = (x == 0 and y == 0);
     if (isStartingPosition)
     {
-      goForward(START_FORWARD_ROTATIONS);
+      // goForward(START_FORWARD_ROTATIONS);
+      goForward();
     }
     else
     {
-      goForward(DEFAULT_FORWARD_ROTATIONS);
+      // goForward(DEFAULT_FORWARD_ROTATIONS);
+      goForward();
     }
   }
   else if (direction == LEFT)
@@ -259,15 +304,15 @@ void Robot::returnFromDeadEnd()
     {
       turnRightBackwards();
     }
-    else if (currentDirection == FORWARD)
+    else if (currentDirection == FORWARDS)
     {
-      goBackwards();        
+      goBackwards();
     }
 
     x = x + BACKWARDS_MOVEMENT_CHANGES[orientation][X];
     y = y + BACKWARDS_MOVEMENT_CHANGES[orientation][Y];
 
-    if (currentDirection == FORWARD)
+    if (currentDirection == FORWARDS)
     {
       orientation = BACKWARDS_ORIENTATION_CHANGES[orientation][BACKWARDS];
     }
@@ -287,27 +332,17 @@ void Robot::returnFromDeadEnd()
 
 void Robot::solveMaze()
 {
-  // Serial.print(x);
-  // Serial.print(" ");
-  // Serial.println(y);
-  // Serial.println(orientation);
-  // Serial.println();
-
-  // maze.printMaze();
-
-  // Serial.println();
-
   uint8_t wallsMask = 0;
   uint8_t corridorsCounter = 0;
   bool isMarkerPlacedSomewhere = false;
-  
+
   for (int direction = 0; direction < 4; ++direction)
   {
     if (maze.isWall(x, y, orientation, direction))
     {
       wallsMask |= (1 << direction);
     }
-    else if(checkForWallUsingSensors(direction))
+    else if (checkForWallUsingSensors(direction))
     {
       wallsMask |= (1 << direction);
       maze.setWall(x, y, orientation, direction);
@@ -344,7 +379,7 @@ void Robot::solveMaze()
   else
   {
     physicallyMoveRobot(directionDecision, wallsMask, isCrossroad);
-    
+
     x = x + MOVEMENT_CHANGES[orientation][directionDecision][X];
     y = y + MOVEMENT_CHANGES[orientation][directionDecision][Y];
 
@@ -364,541 +399,71 @@ bool Robot::didFinish()
   return (distanceToFinal == 0);
 }
 
-void Robot::goForward(uint32_t rotations)
+void Robot::runMotors()
 {
-  uint8_t speedRight = 47;
-  uint8_t speedLeft = 50;
-  uint32_t counter = 0;
+  leftMotorMotionController.run();
+  rightMotorMotionController.run();
+}
 
-  rightMotor.resetTicks();
-  leftMotor.resetTicks();
- 
-  while (counter < rotations)
-  {
-    rightMotor.setMotor(FORWARD, speedRight);
-    leftMotor.setMotor(FORWARD, speedLeft);
- 
-    volatile uint32_t rightRPM = rightMotor.getRPM();
-    volatile uint32_t leftRPM = leftMotor.getRPM();
-    delay(10);
+void Robot::goForward()
+{
+  leftMotorMotionController.setMaxSpeed(200.0);
+  leftMotorMotionController.setAcceleration(100.0);
+  leftMotorMotionController.moveTo(leftMotorMotionController.currentPosition()-mmToSteps(DISTANCE_BETWEEN_CELLS));
 
-    counter += rightRPM;
-
-    bool isLeftWall = (leftSensor.measureDistance() < CLOSE_TO_LEFT_RIGHT_WALL_DISTANCE_CM);
-    bool isRightWall = (rightSensor.measureDistance() < CLOSE_TO_LEFT_RIGHT_WALL_DISTANCE_CM);
-
-    if (isLeftWall and isRightWall)
-    {
-      speedLeft=50;
-      if (leftSensor.measureDistance() < rightSensor.measureDistance())
-      {
-        speedLeft += 1;
-      }
-      else
-      {
-        speedLeft -= 1; 
-      }
-    }
-    else if (isLeftWall)
-    {
-      speedLeft = 50;
-
-      if (leftSensor.measureDistance() < 5)
-      {
-        speedLeft += 2;
-      }
-      else if (leftSensor.measureDistance() > 6 and leftSensor.measureDistance() < 8)
-      {
-        speedLeft -= 2;
-      }
-      else if (rightRPM > leftRPM)
-      {
-        speedLeft += 1;
-      }
-      else if (rightRPM < leftRPM)
-      {
-        speedLeft -= 1;
-      }
-    }
-    else if (isRightWall)
-    {
-      speedLeft = 50;
-
-      if (rightSensor.measureDistance() < 5)
-      {
-        speedLeft -= 2;
-      }
-      else if (rightSensor.measureDistance() > 6 and rightSensor.measureDistance() < 8)
-      {
-        speedLeft += 2;
-      }
-      else if (rightRPM > leftRPM)
-      {
-        speedLeft += 1;
-      }
-      else if (rightRPM < leftRPM)
-      {
-        speedLeft -= 1;
-      }
-    }
-    else
-    {
-      if (rightRPM > leftRPM)
-      {
-        speedLeft += 1;
-      }
-      else if (rightRPM < leftRPM)
-      {
-        speedLeft -= 1;
-      }
-    }
-  }
-
-  rightMotor.stopMotor();
-  leftMotor.stopMotor();
-
-  delay(500);
+  rightMotorMotionController.setMaxSpeed(200.0);
+  rightMotorMotionController.setAcceleration(100.0);
+  rightMotorMotionController.moveTo(rightMotorMotionController.currentPosition()-mmToSteps(DISTANCE_BETWEEN_CELLS));
 }
 
 void Robot::goBackwards()
 {
-  uint32_t rotations = 790;
-  uint32_t counter = 0;
-  
-  uint8_t speedRight = 50;
-  uint8_t speedLeft = 48;
+  leftMotorMotionController.setMaxSpeed(200.0);
+  leftMotorMotionController.setAcceleration(100.0);
+  leftMotorMotionController.moveTo(leftMotorMotionController.currentPosition()+mmToSteps(DISTANCE_BETWEEN_CELLS));
 
-  rightMotor.resetTicks();
-  leftMotor.resetTicks();
- 
-  while (counter < rotations)
-  {
-    rightMotor.setMotor(BACKWARDS, speedRight);
-    leftMotor.setMotor(BACKWARDS, speedLeft);
- 
-    volatile uint32_t rightRPM = rightMotor.getRPM();
-    volatile uint32_t leftRPM = leftMotor.getRPM();
- 
-    counter += rightRPM;
-
-    bool isLeftWall = (leftSensor.measureDistance() < CLOSE_TO_LEFT_RIGHT_WALL_DISTANCE_CM);
-    bool isRightWall = (rightSensor.measureDistance() < CLOSE_TO_LEFT_RIGHT_WALL_DISTANCE_CM);
-
-    // if (isLeftWall and isRightWall)
-    // {
-    //   speedLeft=50;
-    //   if (leftSensor.measureDistance() < rightSensor.measureDistance())
-    //   {
-    //     speedLeft += 1;
-    //   }
-    //   else
-    //   {
-    //     speedLeft -= 1; 
-    //   }
-    // }
-    // else if (isLeftWall)
-    // {
-    //   speedLeft = 50;
-
-    //   if (leftSensor.measureDistance() < 5)
-    //   {
-    //     speedLeft += 2;
-    //   }
-    //   else if (leftSensor.measureDistance() > 6 and leftSensor.measureDistance() < 8)
-    //   {
-    //     speedLeft -= 2;
-    //   }
-    //   else if (rightRPM > leftRPM)
-    //   {
-    //     speedLeft += 1;
-    //   }
-    //   else if (rightRPM < leftRPM)
-    //   {
-    //     speedLeft -= 1;
-    //   }
-    // }
-    // else if (isRightWall)
-    // {
-    //   speedLeft = 50;
-
-    //   if (rightSensor.measureDistance() < 5)
-    //   {
-    //     speedLeft -= 2;
-    //   }
-    //   else if (rightSensor.measureDistance() > 6 and rightSensor.measureDistance() < 8)
-    //   {
-    //     speedLeft += 2;
-    //   }
-    //   else if (rightRPM > leftRPM)
-    //   {
-    //     speedLeft += 1;
-    //   }
-    //   else if (rightRPM < leftRPM)
-    //   {
-    //     speedLeft -= 1;
-    //   }
-    // }
-    // else
-    // {
-    //   if (rightRPM > leftRPM)
-    //   {
-    //     speedLeft += 1;
-    //   }
-    //   else if (rightRPM < leftRPM)
-    //   {
-    //     speedLeft -= 1;
-    //   }
-    // }
-
-    if (leftSensor.measureDistance() < 4)
-    {
-      speedLeft += 1;
-    }
-    else if (rightSensor.measureDistance() < 4)
-    {
-      speedLeft -= 1;  
-    }
-    else if (rightRPM > leftRPM)
-    {
-      speedLeft += 1;
-    }
-    else if(rightRPM < leftRPM)
-    {
-        speedLeft -= 1;
-    }
-  }
-
-  rightMotor.stopMotor();
-  leftMotor.stopMotor();
-
-  delay(500);
+  rightMotorMotionController.setMaxSpeed(200.0);
+  rightMotorMotionController.setAcceleration(100.0);
+  rightMotorMotionController.moveTo(rightMotorMotionController.currentPosition()+mmToSteps(DISTANCE_BETWEEN_CELLS));
 }
 
-void Robot::turnLeftBackwards() //done
-{ 
-  uint32_t rotations = 170;
-  uint32_t counter = 0;
+void Robot::turnLeftBackwards()
+{
+  leftMotorMotionController.setMaxSpeed(-200.0);
+  leftMotorMotionController.setAcceleration(100.0);
+  leftMotorMotionController.moveTo(leftMotorMotionController.currentPosition()+mmToSteps(DISTANCE_BETWEEN_CELLS));
 
-  uint32_t speedRight = 51;
-  uint32_t speedLeft = 48;
-
-  rightMotor.resetTicks();
-  leftMotor.resetTicks();
-
-  while (counter < rotations)
-  {
-    rightMotor.setMotor(BACKWARDS, speedRight);
-    leftMotor.setMotor(BACKWARDS, speedLeft);
-
-    volatile uint32_t rightRPM = rightMotor.getRPM();
-    volatile uint32_t leftRPM = leftMotor.getRPM();
-
-    counter += leftRPM;
-  }
-  
-  rightMotor.stopMotor();
-  leftMotor.stopMotor();
-
-  delay(250);
-
-  rotations = 720;
-  counter = 0;
-  
-  speedRight = 70;
-
-  rightMotor.resetTicks();
-  leftMotor.resetTicks(); 
-
-  while (counter < rotations)
-  {
-    rightMotor.setMotor(BACKWARDS, speedRight);
-    //leftMotor.setMotor(FORWARD, speedLeft);
-
-    volatile uint32_t rightRPM = rightMotor.getRPM();
-    volatile uint32_t leftRPM = leftMotor.getRPM();
-
-    counter += rightRPM;
-  }  
-
-  rightMotor.stopMotor();
-  leftMotor.stopMotor();
-
-  delay(250);
-  
-  rotations = 100;
-  counter = 0;
-  
-  speedRight = 51;
-  speedLeft = 48;
-  
-  rightMotor.resetTicks();
-  leftMotor.resetTicks();
-
-  while (counter < rotations)
-  {
-    rightMotor.setMotor(BACKWARDS, speedRight);
-    leftMotor.setMotor(BACKWARDS, speedLeft);
-
-    volatile uint32_t rightRPM = rightMotor.getRPM();
-    volatile uint32_t leftRPM = leftMotor.getRPM();
-
-    counter += leftRPM;
-  }
-  rightMotor.stopMotor();
-  leftMotor.stopMotor();  
-
-  delay(500);
+  rightMotorMotionController.setMaxSpeed(-200.0);
+  rightMotorMotionController.setAcceleration(100.0);
+  rightMotorMotionController.moveTo(rightMotorMotionController.currentPosition()-mmToSteps(DISTANCE_BETWEEN_CELLS));
 }
 
 void Robot::turnLeftForward()
 {
-  uint32_t rotations = 38;
-  uint32_t counter = 0;
+  leftMotorMotionController.setMaxSpeed(-100.0);
+  leftMotorMotionController.setAcceleration(100.0);
+  leftMotorMotionController.moveTo(leftMotorMotionController.currentPosition()+mmToSteps(DISTANCE_BETWEEN_CELLS));
 
-  uint32_t speedRight = 47;
-  uint32_t speedLeft = 50;
-
-  rightMotor.resetTicks();
-  leftMotor.resetTicks();
-
-  while (counter < rotations)
-  {
-    rightMotor.setMotor(FORWARD, speedRight);
-    leftMotor.setMotor(FORWARD, speedLeft);
-
-    volatile uint32_t rightRPM = rightMotor.getRPM();
-    volatile uint32_t leftRPM = leftMotor.getRPM();
-
-    counter += leftRPM;
-  }
-  
-
-  rightMotor.stopMotor();
-  leftMotor.stopMotor();
-
-  delay(250);
-
-  rotations = 670;
-  counter = 0;
-  
-  speedRight = 70;
-
-  rightMotor.resetTicks();
-  leftMotor.resetTicks(); 
-
-  while (counter < rotations)
-  {
-    rightMotor.setMotor(FORWARD, speedRight);
-    //leftMotor.setMotor(FORWARD, speedLeft);
-
-    volatile uint32_t rightRPM = rightMotor.getRPM();
-    volatile uint32_t leftRPM = leftMotor.getRPM();
-
-    counter += rightRPM;
-  }  
-
-  rightMotor.stopMotor();
-  leftMotor.stopMotor();
-
-  delay(250);
-  
-  rotations = 150;
-  counter = 0;
-  
-  speedRight = 50;
-  speedLeft = 50;
-  
-  rightMotor.resetTicks();
-  leftMotor.resetTicks();
-
-  while (counter < rotations)
-  {
-    rightMotor.setMotor(FORWARD, speedRight);
-    leftMotor.setMotor(FORWARD, speedLeft);
-
-    volatile uint32_t rightRPM = rightMotor.getRPM();
-    volatile uint32_t leftRPM = leftMotor.getRPM();
-
-    counter += leftRPM;
-  }
-  rightMotor.stopMotor();
-  leftMotor.stopMotor();  
-
-  delay(500);
+  rightMotorMotionController.setMaxSpeed(100.0);
+  rightMotorMotionController.setAcceleration(100.0);
+  rightMotorMotionController.moveTo(rightMotorMotionController.currentPosition()-mmToSteps(DISTANCE_BETWEEN_CELLS)); 
 }
 
 void Robot::turnRightBackwards()
 {
-  uint32_t rotations = 200;
-  uint32_t counter = 0;
-
-  uint32_t speedRight = 50;
-  uint32_t speedLeft = 48;
-
-  rightMotor.resetTicks();
-  leftMotor.resetTicks();
-
-  while (counter < rotations)
-  {
-    rightMotor.setMotor(BACKWARDS, speedRight);
-    leftMotor.setMotor(BACKWARDS, speedLeft);
-
-    volatile uint32_t rightRPM = rightMotor.getRPM();
-    volatile uint32_t leftRPM = leftMotor.getRPM();
-
-    counter += leftRPM;
-  }
-  
-  rightMotor.stopMotor();
-  leftMotor.stopMotor();
-
-  delay(250);
-
-  rotations = 700;
-  counter = 0;
-  
-  speedLeft = 70;
-
-  rightMotor.resetTicks();
-  leftMotor.resetTicks(); 
-
-  while (counter < rotations)
-  {
-    leftMotor.setMotor(BACKWARDS, speedLeft);
-
-    volatile uint32_t rightRPM = rightMotor.getRPM();
-    volatile uint32_t leftRPM = leftMotor.getRPM();
-
-    counter += leftRPM;
-  }  
-
-  rightMotor.stopMotor();
-  leftMotor.stopMotor();
-
-  delay(250);
-  
-  rotations = 120;
-  counter = 0;
-  
-  speedRight = 50;
-  speedLeft = 48;
-  
-  rightMotor.resetTicks();
-  leftMotor.resetTicks();
-
-  while (counter < rotations)
-  {
-    rightMotor.setMotor(BACKWARDS, speedRight);
-    leftMotor.setMotor(BACKWARDS, speedLeft);
-
-    volatile uint32_t rightRPM = rightMotor.getRPM();
-    volatile uint32_t leftRPM = leftMotor.getRPM();
-
-    counter += leftRPM;
-  }
-  rightMotor.stopMotor();
-  leftMotor.stopMotor();  
-
-  delay(500);
 }
 
-void Robot::turnRightForward() //done
+void Robot::turnRightForward()
 {
-  uint32_t rotations = 42; //38
-  uint32_t counter = 0;
+  leftMotorMotionController.setMaxSpeed(200.0);
+  leftMotorMotionController.setAcceleration(100.0);
+  leftMotorMotionController.moveTo(leftMotorMotionController.currentPosition()-mmToSteps(DISTANCE_BETWEEN_CELLS));
 
-  uint32_t speedRight = 47;
-  uint32_t speedLeft = 50;
-
-  rightMotor.resetTicks();
-  leftMotor.resetTicks();
-
-  while (counter < rotations)
-  {
-    rightMotor.setMotor(FORWARD, speedRight);
-    leftMotor.setMotor(FORWARD, speedLeft);
-
-    volatile uint32_t rightRPM = rightMotor.getRPM();
-    volatile uint32_t leftRPM = leftMotor.getRPM();
-
-    counter += leftRPM;
-  }
-  
-
-  rightMotor.stopMotor();
-  leftMotor.stopMotor();
-
-  delay(200);
-
-  rotations = 750;
-  counter = 0;
-  
-  speedLeft = 70;
-
-  rightMotor.resetTicks();
-  leftMotor.resetTicks(); 
-
-  while (counter < rotations)
-  {
-    leftMotor.setMotor(FORWARD, speedLeft);
-
-    volatile uint32_t rightRPM = rightMotor.getRPM();
-    volatile uint32_t leftRPM = leftMotor.getRPM();
-
-    counter += leftRPM;
-  }  
-
-  rightMotor.stopMotor();
-  leftMotor.stopMotor();
-
-  delay(200);
-  
-  rotations = 181;
-  counter = 0;
-  
-  speedRight = 48;
-  speedLeft = 49;
-  
-  rightMotor.resetTicks();
-  leftMotor.resetTicks();
-
-  while (counter < rotations)
-  {
-    rightMotor.setMotor(FORWARD, speedRight);
-    leftMotor.setMotor(FORWARD, speedLeft);
-
-    volatile uint32_t rightRPM = rightMotor.getRPM();
-    volatile uint32_t leftRPM = leftMotor.getRPM();
-
-    counter += leftRPM;
-  }
-  rightMotor.stopMotor();
-  leftMotor.stopMotor();  
-
-  delay(500);
+  rightMotorMotionController.setMaxSpeed(-200.0);
+  rightMotorMotionController.setAcceleration(100.0);
+  rightMotorMotionController.moveTo(rightMotorMotionController.currentPosition()+mmToSteps(DISTANCE_BETWEEN_CELLS));
 }
 
 void Robot::celebrate()
 {
-  uint32_t rotations = 642;
-  uint32_t counter = 0;
-  
-  uint32_t speedRight = 70;
-
-  rightMotor.resetTicks();
-  leftMotor.resetTicks(); 
-
-  while (counter < rotations)
-  {
-    rightMotor.setMotor(FORWARD, speedRight);
-    //leftMotor.setMotor(FORWARD, speedLeft);
-
-    volatile uint32_t rightRPM = rightMotor.getRPM();
-    volatile uint32_t leftRPM = leftMotor.getRPM();
-
-    counter += rightRPM;
-  }  
-
-  rightMotor.stopMotor();
-  leftMotor.stopMotor();
 }
