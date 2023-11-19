@@ -15,26 +15,26 @@ Maze::Maze()
   }
 }
 
-bool Maze::inBoundaries(uint8_t x, uint8_t y)
+bool Maze::inBoundaries(int x, int y)
 {
   return (x >= 0 and x < MAZE_SIZE and y >= 0 and y < MAZE_SIZE);
 }
 
-bool Maze::isWall(uint8_t x, uint8_t y, uint8_t orientation, uint8_t direction)
+bool Maze::isWall(int x, int y, uint8_t orientation, uint8_t direction)
 {
   uint8_t realOrientation = ORIENTATION_CHANGES[orientation][direction];
 
   return (cellWalls[x][y] & (1 << realOrientation));
 }
 
-void Maze::setWall(uint8_t x, uint8_t y, uint8_t orientation, uint8_t direction)
+void Maze::setWall(int x, int y, uint8_t orientation, uint8_t direction)
 {
   uint8_t realOrientation = ORIENTATION_CHANGES[orientation][direction];
   cellWalls[x][y] |= (1 << realOrientation);
 
   // change the cell that is on the other side of the wall
-  uint8_t nextX = x + MOVEMENT_CHANGES[orientation][direction][X];
-  uint8_t nextY = y + MOVEMENT_CHANGES[orientation][direction][Y];
+  int nextX = x + MOVEMENT_CHANGES[orientation][direction][X];
+  int nextY = y + MOVEMENT_CHANGES[orientation][direction][Y];
 
   if (inBoundaries(nextX, nextY))
   {
@@ -42,14 +42,14 @@ void Maze::setWall(uint8_t x, uint8_t y, uint8_t orientation, uint8_t direction)
   }
 }
 
-int Maze::getCorridorMarkersCount(uint8_t x, uint8_t y, uint8_t orientation, uint8_t direction)
+int Maze::getCorridorMarkersCount(int x, int y, uint8_t orientation, uint8_t direction)
 {
   uint8_t realOrientation = ORIENTATION_CHANGES[orientation][direction];
   
   return cellCorridorsMarkers[x][y][realOrientation];
 }
 
-void Maze::updateCorridorMarkersCount(uint8_t x, uint8_t y, uint8_t orientation, uint8_t direction, uint8_t newMarkersCount)
+void Maze::updateCorridorMarkersCount(int x, int y, uint8_t orientation, uint8_t direction, uint8_t newMarkersCount)
 {
   if (newMarkersCount > 2)
   {
@@ -60,8 +60,8 @@ void Maze::updateCorridorMarkersCount(uint8_t x, uint8_t y, uint8_t orientation,
   cellCorridorsMarkers[x][y][realOrientation] = newMarkersCount;
 
   // change the cell that is on the other side of the wall
-  uint8_t nextX = x + MOVEMENT_CHANGES[orientation][direction][X];
-  uint8_t nextY = y + MOVEMENT_CHANGES[orientation][direction][Y];
+  int nextX = x + MOVEMENT_CHANGES[orientation][direction][X];
+  int nextY = y + MOVEMENT_CHANGES[orientation][direction][Y];
 
   if (inBoundaries(nextX, nextY))
   {
@@ -70,7 +70,7 @@ void Maze::updateCorridorMarkersCount(uint8_t x, uint8_t y, uint8_t orientation,
   }
 }
 
-uint8_t Maze::getDistanceToFinal(uint8_t coordinate)
+uint8_t Maze::getDistanceToFinal(int coordinate)
 {
   if (coordinate <= MAZE_FINAL_LOW_BOUNDARY)
   {
@@ -80,9 +80,9 @@ uint8_t Maze::getDistanceToFinal(uint8_t coordinate)
   return coordinate - MAZE_FINAL_HIGH_BOUNDARY;
 }
 
-void Maze::resetValues(uint8_t reachedX)
+void Maze::resetValues(int reachedX)
 {
-  uint8_t newY = MAZE_SIZE - 2;
+  int newY = MAZE_SIZE - 2;
 
   for (int x = 0; x < reachedX; ++x)
   {

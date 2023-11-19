@@ -25,32 +25,42 @@ void rightMotorStepBackward()
   rightMotorDriver->onestep(BACKWARD, SINGLE);
 }
 
+void forwardStepForward()
+{
+  leftMotorDriver->onestep(FORWARD, SINGLE);
+  rightMotorDriver->onestep(FORWARD, SINGLE);
+}
+
+void forwardStepBackward()
+{
+  leftMotorDriver->onestep(BACKWARD, SINGLE);
+  rightMotorDriver->onestep(BACKWARD, SINGLE);
+}
+
+int mmToSteps(double distance)
+{
+  double wheelCircumference = PI * WHEEL_DIAMETER;
+  double revolutions = 1.0 * distance / wheelCircumference;
+  double steps = revolutions * STEPPER_MOTOR_STEPS_COUNT * 1.03;
+
+  return (int) round(steps);
+}
+
 AccelStepper leftMotorMotionController(leftMotorStepForward, leftMotorStepBackward);
 AccelStepper rightMotorMotionController(rightMotorStepForward, rightMotorStepBackward);
+AccelStepper forwardMotionController(forwardStepForward, forwardStepBackward);
 
 int cells = 0;
 
 void Robot::testDrive()
 {
 
-  Serial.print("FRONT --> ");
-  Serial.println(frontSensor.isNearObstacle());
-  Serial.println();
-
-  Serial.print("RIGHT --> ");
-  Serial.println(rightSensor.isNearObstacle());
-  Serial.println();
-
-  Serial.print("LEFT --> ");
-  Serial.println(leftSensor.isNearObstacle());
-  Serial.println();
-  // if (cells == 0 || (cells < 5 && leftMotorMotionController.distanceToGo() == 0)) {
-  //   delay(3000);
-
-  //   goForward();
-
-  //   ++cells;
-  // }
+  goForward();
+  // goForward();
+  // goForward();
+  // turnLeft();
+  // turnLeft();
+  // turnRight();
 }
 
 Robot::Robot()
@@ -58,9 +68,13 @@ Robot::Robot()
   x = y = 0;
   orientation = DOWN;
 
+  hasToMovePhysically = false;
+
   leftSensor = InfraredSensor(4, A2);
   rightSensor = InfraredSensor(3, A1);
   frontSensor = InfraredSensor(2, A0);
+
+  motorsAssemblyLine.clear();
 }
 
 void Robot::initializeSensors()
@@ -261,35 +275,34 @@ void Robot::physicallyMoveRobot(uint8_t direction, uint8_t wallsMask, bool isCro
 
   if (isCrossroad and direction == BACKWARDS)
   {
-    maneuverOverCrossroadToSamePosition(wallsMask);
+    // maneuverOverCrossroadToSamePosition(wallsMask);
+    turnLeft();
+    turnLeft();
+    goForward();
   }
   else if (direction == FORWARDS)
   {
-    bool isStartingPosition = (x == 0 and y == 0);
-    if (isStartingPosition)
-    {
-      // goForward(START_FORWARD_ROTATIONS);
-      goForward();
-    }
-    else
-    {
-      // goForward(DEFAULT_FORWARD_ROTATIONS);
-      goForward();
-    }
+    goForward();
   }
   else if (direction == LEFT)
   {
-    turnLeftForward();
+    turnLeft();
+    goForward();
   }
   else if (direction == RIGHT)
   {
-    turnRightForward();
+    turnRight();
+    goForward();
   }
 }
 
 void Robot::returnFromDeadEnd()
 {
   uint8_t lastDirection = -1;
+
+  orientation = ORIENTATION_CHANGES[orientation][BACKWARDS];
+  turnLeft();
+  turnLeft();
 
   while (movementTraceBack.getSize() > 1)
   {
@@ -298,40 +311,62 @@ void Robot::returnFromDeadEnd()
 
     if (currentDirection == LEFT)
     {
-      turnLeftBackwards();
+      goForward();
+      turnRight();
     }
     else if (currentDirection == RIGHT)
     {
-      turnRightBackwards();
+      goForward();
+      turnLeft();
     }
     else if (currentDirection == FORWARDS)
     {
-      goBackwards();
+      goForward();
     }
 
-    x = x + BACKWARDS_MOVEMENT_CHANGES[orientation][X];
-    y = y + BACKWARDS_MOVEMENT_CHANGES[orientation][Y];
+    // x = x + BACKWARDS_MOVEMENT_CHANGES[orientation][X];
+    // y = y + BACKWARDS_MOVEMENT_CHANGES[orientation][Y];
 
-    if (currentDirection == FORWARDS)
-    {
-      orientation = BACKWARDS_ORIENTATION_CHANGES[orientation][BACKWARDS];
-    }
-    else
-    {
-      orientation = BACKWARDS_ORIENTATION_CHANGES[orientation][currentDirection];
-    }
+    x = x + MOVEMENT_CHANGES[orientation][FORWARDS][X];
+    y = y + MOVEMENT_CHANGES[orientation][FORWARDS][Y];
+
+    // if (currentDirection == FORWARDS)
+    // {
+    //   orientation = BACKWARDS_ORIENTATION_CHANGES[orientation][BACKWARDS];
+    // }
+    // else
+    // {
+    //   orientation = BACKWARDS_ORIENTATION_CHANGES[orientation][currentDirection];
+    // }
+
+    orientation = ORIENTATION_CHANGES[orientation][currentDirection];
 
     lastDirection = currentDirection;
   }
 
+  orientation = ORIENTATION_CHANGES[orientation][BACKWARDS];
+  turnLeft();
+  turnLeft();
+
   uint8_t wallsMask = movementTraceBack.top();
   movementTraceBack.pop();
 
-  maneuverOverCrossroadToDifferentPosition(lastDirection, wallsMask);
+  // maneuverOverCrossroadToDifferentPosition(lastDirection, wallsMask);
 }
 
 void Robot::solveMaze()
 {
+  if (hasToMovePhysically)
+  {
+    return;
+  }
+
+  Serial.println();
+  Serial.print(x);
+  Serial.print(" ");
+  Serial.print(y);
+  Serial.println();
+
   uint8_t wallsMask = 0;
   uint8_t corridorsCounter = 0;
   bool isMarkerPlacedSomewhere = false;
@@ -371,6 +406,11 @@ void Robot::solveMaze()
     directionDecision = getCorridorDirection(wallsMask);
   }
 
+  Serial.println();
+  Serial.print("Decision --> ");
+  Serial.print(directionDecision);
+  Serial.println();
+
   bool isDeadEnd = (directionDecision == BACKWARDS and !isCrossroad);
   if (isDeadEnd)
   {
@@ -401,19 +441,72 @@ bool Robot::didFinish()
 
 void Robot::runMotors()
 {
+  if (leftMotorMotionController.distanceToGo() == 0) 
+  {
+    if (motorsAssemblyLine.empty()) 
+    {
+      hasToMovePhysically = false;
+    }
+    else
+    {
+      leftMotorMotionController.setCurrentPosition(0);
+      rightMotorMotionController.setCurrentPosition(0);
+      forwardMotionController.setCurrentPosition(0);
+
+      MotorsMovement movement = motorsAssemblyLine.front();
+      motorsAssemblyLine.pop();
+
+      if (movement.leftMotorTargetPosition == movement.rightMotorTargetPosition)
+      {
+        forwardMotionController.setMaxSpeed(movement.leftMotorMaxSpeed);
+        forwardMotionController.setAcceleration(movement.leftMotorAcceleration);
+        forwardMotionController.moveTo(movement.leftMotorTargetPosition);
+      }
+      else
+      {
+        leftMotorMotionController.setMaxSpeed(movement.leftMotorMaxSpeed);
+        leftMotorMotionController.setAcceleration(movement.leftMotorAcceleration);
+        leftMotorMotionController.moveTo(movement.leftMotorTargetPosition);
+
+        rightMotorMotionController.setMaxSpeed(movement.rightMotorMaxSpeed);
+        rightMotorMotionController.setAcceleration(movement.rightMotorAcceleration);
+        rightMotorMotionController.moveTo(movement.rightMotorTargetPosition);
+      }
+    } 
+  }
+
   leftMotorMotionController.run();
   rightMotorMotionController.run();
 }
 
 void Robot::goForward()
 {
-  leftMotorMotionController.setMaxSpeed(200.0);
-  leftMotorMotionController.setAcceleration(100.0);
-  leftMotorMotionController.moveTo(leftMotorMotionController.currentPosition()-mmToSteps(DISTANCE_BETWEEN_CELLS));
+  hasToMovePhysically = true;
 
-  rightMotorMotionController.setMaxSpeed(200.0);
-  rightMotorMotionController.setAcceleration(100.0);
-  rightMotorMotionController.moveTo(rightMotorMotionController.currentPosition()-mmToSteps(DISTANCE_BETWEEN_CELLS));
+  int currentDistance = mmToSteps(DISTANCE_BETWEEN_CELLS);
+  MotorsMovement currentMovement(200, 100, -currentDistance, 200, 100, -currentDistance);
+
+  motorsAssemblyLine.push(currentMovement);
+}
+
+void Robot::turnLeft()
+{
+  hasToMovePhysically = true;
+
+  int currentDistance = 118;
+  MotorsMovement currentMovement(200, 100, currentDistance, -200, 100, -currentDistance);
+
+  motorsAssemblyLine.push(currentMovement);
+}
+
+void Robot::turnRight()
+{
+  hasToMovePhysically = true;
+
+  int currentDistance = 118;
+  MotorsMovement currentMovement(-200, 100, -currentDistance, 200, 100, currentDistance);
+
+  motorsAssemblyLine.push(currentMovement);
 }
 
 void Robot::goBackwards()

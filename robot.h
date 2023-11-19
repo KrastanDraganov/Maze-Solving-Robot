@@ -7,14 +7,19 @@
 #include "maze.h"
 #include "infrared_sensor.h"
 #include "stack.h"
+#include "queue.h"
+#include "movement.h"
 
 class Robot
 {
   private:
-    uint8_t x, y;
+    int x, y;
     uint8_t orientation;
 
-    Stack movementTraceBack;
+    Stack<uint8_t> movementTraceBack;
+
+    bool hasToMovePhysically;
+    Queue<MotorsMovement> motorsAssemblyLine;
 
     Maze maze;
 
@@ -35,6 +40,9 @@ class Robot
 
     void runMotors();
     void goForward();
+    void turnLeft();
+    void turnRight();
+
     void goBackwards();
     void turnLeftBackwards();
     void turnLeftForward();

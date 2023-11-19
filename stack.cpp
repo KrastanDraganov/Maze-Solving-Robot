@@ -1,26 +1,25 @@
 #include "stack.h"
 
-Stack::Stack()
+template <typename T>
+Stack<T>::Stack()
 {
-  for (int i = 0; i < MAZE_SIZE + MAZE_SIZE; ++i)
-  {
-    values[i] = -1;
-  }
-
   stackSize = 0;
 }
 
-uint8_t Stack::getSize()
+template <typename T>
+uint8_t Stack<T>::getSize()
 {
   return stackSize;
 }
 
-bool Stack::empty()
+template <typename T>
+bool Stack<T>::empty()
 {
   return (stackSize == 0);
 }
 
-void Stack::clear()
+template <typename T>
+void Stack<T>::clear()
 {
   while (!empty())
   {
@@ -28,7 +27,8 @@ void Stack::clear()
   }
 }
 
-uint8_t Stack::top()
+template <typename T>
+T Stack<T>::top()
 {
   if (empty())
   {
@@ -38,12 +38,14 @@ uint8_t Stack::top()
   return values[stackSize - 1];
 }
 
-void Stack::push(uint8_t newValue)
+template <typename T>
+void Stack<T>::push(T newValue)
 {
   values[stackSize++] = newValue;
 }
 
-void Stack::pop()
+template <typename T>
+void Stack<T>::pop()
 {
   if (empty())
   {
@@ -52,3 +54,5 @@ void Stack::pop()
 
   values[--stackSize] = -1;
 }
+
+template class Stack<uint8_t>;

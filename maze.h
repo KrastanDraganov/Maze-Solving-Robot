@@ -12,17 +12,17 @@ class Maze
   public:
     Maze();
 
-    bool inBoundaries(uint8_t x, uint8_t y);
+    bool inBoundaries(int x, int y);
 
-    bool isWall(uint8_t x, uint8_t y, uint8_t orientation, uint8_t direction);
-    void setWall(uint8_t x, uint8_t y, uint8_t orientation, uint8_t direction);
+    bool isWall(int x, int y, uint8_t orientation, uint8_t direction);
+    void setWall(int x, int y, uint8_t orientation, uint8_t direction);
 
-    int getCorridorMarkersCount(uint8_t x, uint8_t y, uint8_t orientation, uint8_t direction);
-    void updateCorridorMarkersCount(uint8_t x, uint8_t y, uint8_t orientation, uint8_t direction, uint8_t newMarkersCount);
+    int getCorridorMarkersCount(int x, int y, uint8_t orientation, uint8_t direction);
+    void updateCorridorMarkersCount(int x, int y, uint8_t orientation, uint8_t direction, uint8_t newMarkersCount);
 
-    uint8_t getDistanceToFinal(uint8_t x);
+    uint8_t getDistanceToFinal(int x);
 
-    void resetValues(uint8_t reachedX);
+    void resetValues(int reachedX);
 
     void printMaze();
 };
